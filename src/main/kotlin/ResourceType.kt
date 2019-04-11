@@ -1,0 +1,7 @@
+object ResourceType {
+    const val drawable ="drawable"
+    const val dimen ="dimen"
+    const val string ="string"
+    const val color ="color"
+    const val style ="style"
+}
