@@ -30,15 +30,28 @@ fun main(args: Array<String>) {
         refactorDimens(usages.getMonoModuleDimensions(), valuesDirs, projectDir, baseModule, basePackageName)
     }
 
+    if (namespaceRaws) {
+        refactorRaws(usages.getMonoModuleRaws(), projectDir, baseModule, basePackageName)
+    }
 
     if (namespaceStrings) {
         refactorStrings(usages.getMonoModuleStrings(), valuesDirs, projectDir, baseModule, basePackageName)
     }
 
-    if (namespaceRaws) {
-        refactorRaws(usages.getMonoModuleRaws(), projectDir, baseModule, basePackageName)
+    if(true){
+        refactorColors(usages.getMonoModuleColors(), projectDir, baseModule, basePackageName)
     }
 
+
+}
+
+fun refactorColors(
+    colors: Map<String, MutableList<Usage>>,
+    projectDir: String,
+    baseModule: String,
+    basePackageName: String
+) {
+    refactorMove(projectDir, baseModule, colors, ResourceType.color, basePackageName)
 
 }
 
@@ -236,7 +249,6 @@ private fun refactorDimens(
 ) {
 
 
-    val affectedFiles = mutableSetOf<String>()
 
 
     val dimensFiles = valuesDirs.flatMap {
@@ -325,6 +337,7 @@ private fun refactorDimens(
 
     }
 
+    val affectedFiles = mutableSetOf<String>()
 
     dimens.forEach { dimen ->
         val entry = dimen.value[0]
@@ -343,7 +356,6 @@ private fun refactorDimens(
 
     fullyQualifyResources(affectedFiles, ResourceType.dimen, dimens.map { it.key }, basePackageName)
 
-    affectedFiles.clear()
 }
 
 private fun findUsages(projectDir: String): Usages {
@@ -411,7 +423,7 @@ private fun findUsages(projectDir: String): Usages {
 
     val codeResRegex =
         "([a-zA-Z0-9_]+[\\n\\r\\s]*\\.[a-zA-Z0-9_.\\n\\r\\s]*\\.[\\n\\r\\s]*|)(R[\\n\\r\\s]*.[\\n\\r\\s]*)(dimen|drawable|color|string|style|raw|array)[\\n\\r\\s]*\\.[\\n\\r\\s]*([a-zA-Z0-9_]+)".toRegex()
-    projectFile.walk().filter { !it.isDirectory && (it.name.endsWith(".kt") || it.name.endsWith(".java")) }
+    projectFile.walk().filter { !it.isDirectory && (it.name.endsWith(".kt") || it.name.endsWith(".java")) && !it.path.contains("/test/") }
         .forEach { file ->
             val text = file.readText()
 
@@ -559,7 +571,7 @@ fun findAndReplaceRImports(
     val codeRegex =
         "(([a-zA-Z0-9_]+[\\n\\r\\s]*\\.[\\n\\r\\s]*)+|[a-zA-Z0-9_]*)(R[\\n\\r\\s]*.[\\n\\r\\s]*)(dimen|drawable|color|string|style|raw|array)[\\n\\r\\s]*\\.[\\n\\r\\s]*([a-zA-Z0-9_]+)([\\n\\r\\s]|\\)|;|,)".toRegex()
 
-    files.filter { !it.endsWith(".xml") }.map { File(it) }.forEach { file ->
+    files.filter { !it.endsWith(".xml") && !it.contains("/test/") }.map { File(it) }.forEach { file ->
         var writeFile = false
         var text = file.readText()
 
@@ -694,7 +706,7 @@ private fun fullyQualifyResources(
     val codeRegex =
         "([a-zA-Z0-9_]+[\\n\\r\\s]*\\.[a-zA-Z0-9_.\\n\\r\\s]*\\.[\\n\\r\\s]*|[a-zA-Z0-9_]*\\.?)(R[\\n\\r\\s]*.[\\n\\r\\s]*)(dimen|drawable|color|string|style|raw|array)[\\n\\r\\s]*\\.[\\n\\r\\s]*([a-zA-Z0-9_]+)".toRegex()
 
-    files.filter { !it.endsWith(".xml") }.map { File(it) }
+    files.filter { !it.endsWith(".xml") && !it.contains("/test/") }.map { File(it) }
         .forEach { file ->
             var writeFile = false
             var text = file.readText()
