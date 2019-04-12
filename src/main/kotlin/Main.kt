@@ -166,12 +166,32 @@ private fun refactorRaws(
     baseModule: String,
     basePackageName: String
 ) {
+    refactorMove(projectDir, baseModule, raws, ResourceType.raw, basePackageName)
+
+}
+
+private fun refactorDrawables(
+    drawables: Map<String, MutableList<Usage>>,
+    projectDir: String,
+    baseModule: String,
+    basePackageName: String
+) {
+    refactorMove(projectDir, baseModule, drawables, ResourceType.drawable, basePackageName)
+}
+
+private fun refactorMove(
+    projectDir: String,
+    baseModule: String,
+    resources: Map<String, MutableList<Usage>>,
+    resType: String,
+    basePackageName: String
+) {
     val affectedFiles = mutableSetOf<String>()
     val dirs = File("$projectDir/$baseModule").walk()
         .filter {
-            it.isDirectory && it.name.startsWith(ResourceType.raw) && it.parent.contains("res")
+            it.isDirectory && it.name.startsWith(resType) && it.parent.contains("res")
         }
-    raws.forEach { raw ->
+    resources.forEach { raw ->
 
         dirs.flatMap {
             it.walk()
@@ -195,63 +215,17 @@ private fun refactorRaws(
                 packageName,
                 entry.files,
                 raw.key,
-                ResourceType.raw
+                resType
             )
         )
 
     }
 
 
-    fullyQualifyResources(affectedFiles, ResourceType.raw, raws.map { it.key }, basePackageName)
-
+    fullyQualifyResources(affectedFiles, resType, resources.map { it.key }, basePackageName)
 }
 
-private fun refactorDrawables(
-    drawables: Map<String, MutableList<Usage>>,
-    projectDir: String,
-    baseModule: String,
-    basePackageName: String
-) {
-    val affectedFiles = mutableSetOf<String>()
-    val drawableDirs = File("$projectDir/$baseModule").walk()
-        .filter {
-            it.isDirectory && it.name.startsWith(ResourceType.drawable) && it.parent.contains("res")
-        }
-    drawables.forEach { drawable ->
 
-        drawableDirs.flatMap {
-            it.walk()
-        }.filter {
-            !it.isDirectory && drawable.key == it.nameWithoutExtension
-        }.forEach {
-            val module = drawable.value[0].module
-            val newFile = File(it.path.replace("$projectDir/$baseModule", "$projectDir/$module"))
-                .also {
-                    it.parentFile.mkdirs()
-                }
-            val newPath = Files.move(it.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
-            println("Drawable ${newFile.name} moved to Module $module under ${newPath.parent}")
-        }
-
-        val entry = drawable.value[0]
-        val packageName = getPackageNameFromModule(projectDir, entry.module)
-        affectedFiles.addAll(
-            findAndReplaceRImports(
-                basePackageName,
-                packageName,
-                entry.files,
-                drawable.key,
-                ResourceType.drawable
-            )
-        )
-
-    }
-
-
-    fullyQualifyResources(affectedFiles, ResourceType.drawable, drawables.map { it.key }, basePackageName)
-
-    affectedFiles.clear()
-}
 
 private fun refactorDimens(
     dimens: Map<String, MutableList<Usage>>,
