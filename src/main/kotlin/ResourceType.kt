@@ -4,4 +4,5 @@ object ResourceType {
     const val string ="string"
     const val color ="color"
     const val style ="style"
+    const val raw ="raw"
 }

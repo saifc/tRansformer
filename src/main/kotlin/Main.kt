@@ -8,6 +8,7 @@ fun main(args: Array<String>) {
     val namespaceDimens = true
     val namespaceDrawable = true
     val namespaceStrings = true
+    val namespaceRaws = true
 
     val baseModule = "core"
     val projectDir = "/Users/saif/pot_commun_android"
@@ -34,6 +35,9 @@ fun main(args: Array<String>) {
         refactorStrings(usages.getMonoModuleStrings(), valuesDirs, projectDir, baseModule, basePackageName)
     }
 
+    if (namespaceRaws) {
+        refactorRaws(usages.getMonoModuleRaws(), projectDir, baseModule, basePackageName)
+    }
 
 
 }
@@ -154,6 +158,52 @@ private fun refactorStrings(
     fullyQualifyResources(affectedFiles, ResourceType.string, strings.map { it.key }, basePackageName)
 
     affectedFiles.clear()
+}
+
+private fun refactorRaws(
+    raws: Map<String, MutableList<Usage>>,
+    projectDir: String,
+    baseModule: String,
+    basePackageName: String
+) {
+    val affectedFiles = mutableSetOf<String>()
+    val dirs = File("$projectDir/$baseModule").walk()
+        .filter {
+            it.isDirectory && it.name.startsWith(ResourceType.raw) && it.parent.contains("res")
+        }
+    raws.forEach { raw ->
+
+        dirs.flatMap {
+            it.walk()
+        }.filter {
+            !it.isDirectory && raw.key == it.nameWithoutExtension
+        }.forEach {
+            val module = raw.value[0].module
+            val newFile = File(it.path.replace("$projectDir/$baseModule", "$projectDir/$module"))
+                .also {
+                    it.parentFile.mkdirs()
+                }
+            val newPath = Files.move(it.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            println("Raw ${newFile.name} moved to Module $module under ${newPath.parent}")
+        }
+
+        val entry = raw.value[0]
+        val packageName = getPackageNameFromModule(projectDir, entry.module)
+        affectedFiles.addAll(
+            findAndReplaceRImports(
+                basePackageName,
+                packageName,
+                entry.files,
+                raw.key,
+                ResourceType.raw
+            )
+        )
+
+    }
+
+
+    fullyQualifyResources(affectedFiles, ResourceType.raw, raws.map { it.key }, basePackageName)
+
 }
 
 private fun refactorDrawables(
@@ -423,6 +473,13 @@ private fun findUsages(projectDir: String): Usages {
                         }
                         ResourceType.string -> {
                             usages.putString(
+                                resourceName,
+                                file.toRelativeString(projectFile).substringBefore("/"),
+                                file.path
+                            )
+                        }
+                        ResourceType.raw -> {
+                            usages.putRaw(
                                 resourceName,
                                 file.toRelativeString(projectFile).substringBefore("/"),
                                 file.path

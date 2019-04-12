@@ -5,6 +5,7 @@ class Usages {
     private val drawables = mutableMapOf<String, MutableList<Usage>>()
     private val colors = mutableMapOf<String, MutableList<Usage>>()
     private val strings = mutableMapOf<String, MutableList<Usage>>()
+    private val raws = mutableMapOf<String, MutableList<Usage>>()
 
     fun putDimension(key: String, module: String, file: String) {
         putElement(key, module, file, dimens)
@@ -19,6 +20,10 @@ class Usages {
     }
     fun putString(key: String, module: String, file: String) {
         putElement(key, module, file, strings)
+    }
+
+    fun putRaw(key: String, module: String, file: String) {
+        putElement(key, module, file, raws)
     }
 
     private fun putElement(key: String, module: String, file: String, map: MutableMap<String, MutableList<Usage>>) {
@@ -50,6 +55,10 @@ class Usages {
 
     fun getMonoModuleDrawables(): Map<String, MutableList<Usage>> {
         return getMonoModuleResourcesPerType(drawables)
+    }
+
+    fun getMonoModuleRaws(): Map<String, MutableList<Usage>> {
+        return getMonoModuleResourcesPerType(raws)
     }
 
     fun getMonoModuleColors(): Map<String, MutableList<Usage>> {
