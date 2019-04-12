@@ -6,6 +6,8 @@ fun main(args: Array<String>) {
 
 
     val namespaceDimens = true
+    val namespaceDrawable = true
+    val namespaceStrings = true
 
     val baseModule = "core"
     val projectDir = "/Users/saif/pot_commun_android"
@@ -13,10 +15,154 @@ fun main(args: Array<String>) {
 
     val usages = findUsages(projectDir)
 
-    val drawables = usages.getMonoModuleDrawables()
 
+    if (namespaceDrawable) {
+        refactorDrawables(usages.getMonoModuleDrawables(), projectDir, baseModule, basePackageName)
+    }
+
+    val valuesDirs = File("$projectDir/$baseModule").walk()
+        .filter {
+            it.isDirectory && it.name.startsWith("values") && it.parent.contains("res")
+        }
+
+    if (namespaceDimens) {
+        refactorDimens(usages.getMonoModuleDimensions(), valuesDirs, projectDir, baseModule, basePackageName)
+    }
+
+
+    if (namespaceStrings) {
+        refactorStrings(usages.getMonoModuleStrings(), valuesDirs, projectDir, baseModule, basePackageName)
+    }
+
+
+
+}
+
+private fun refactorStrings(
+    strings: Map<String, MutableList<Usage>>,
+    valuesDirs: Sequence<File>,
+    projectDir: String,
+    baseModule: String,
+    basePackageName: String
+) {
     val affectedFiles = mutableSetOf<String>()
 
+
+    val stringsFiles = valuesDirs.flatMap {
+        it.walk()
+    }.filter {
+        !it.isDirectory && it.nameWithoutExtension.contains("strings") && it.extension == "xml"
+    }
+
+
+    val stringRegex = "< *string .* *name *= *\"([a-zA-Z0-9_]+)\"".toRegex()
+
+    val filesToAppendTo = mutableMapOf<String, String>()
+
+    stringsFiles.forEach { file ->
+
+        println("in ${file.path}")
+
+        val br = file.bufferedReader()
+
+
+        var writeFile = false
+        val newFile = File(file.absolutePath + "_tmp").apply {
+            createNewFile()
+        }
+        newFile.bufferedWriter().use { bw ->
+            var line = br.readLine()
+            while (line != null) {
+
+                var writeLine = true
+                val matches = stringRegex.findAll(line)
+                matches.forEach {
+
+                    val (stringName) = it.destructured
+                    val string = strings[stringName]
+                    if (string != null) {
+
+                        val module = string[0].module
+                        if (!file.path.contains("$projectDir/$module")) {
+                            val path = file.path.replace("$projectDir/$baseModule", "$projectDir/$module")
+                            val fileContent = filesToAppendTo[path] ?: ""
+                            filesToAppendTo[path] = fileContent + line + "\n"
+                            writeFile = true
+                            writeLine = false
+
+                        }
+                    }
+                }
+
+
+                if (writeLine)
+                    bw.write(line)
+
+                line = br.readLine()
+
+                if (writeLine && line != null)
+                    bw.newLine()
+            }
+
+            if (writeFile)
+                newFile.renameTo(file)
+            else
+                newFile.deleteOnExit()
+        }
+
+
+    }
+
+    filesToAppendTo.forEach { key, value ->
+        val file = File(key)
+        val fileExists = file.exists()
+
+        val fileContent =
+            if (fileExists) {
+                val content = file.readText().substringBeforeLast("</resources>")
+                "$content$value</resources>"
+            } else {
+                "<resources>\n$value</resources>"
+            }
+
+        if (!fileExists) {
+            file.parentFile.mkdirs()
+            file.createNewFile()
+        }
+
+        file.writeText(fileContent)
+
+    }
+
+
+    strings.forEach { string ->
+        val entry = string.value[0]
+        val packageName = getPackageNameFromModule(projectDir, entry.module)
+        affectedFiles.addAll(
+            findAndReplaceRImports(
+                basePackageName,
+                packageName,
+                entry.files,
+                string.key,
+                ResourceType.string
+            )
+        )
+    }
+
+
+
+    fullyQualifyResources(affectedFiles, ResourceType.string, strings.map { it.key }, basePackageName)
+
+    affectedFiles.clear()
+}
+
+private fun refactorDrawables(
+    drawables: Map<String, MutableList<Usage>>,
+    projectDir: String,
+    baseModule: String,
+    basePackageName: String
+) {
+    val affectedFiles = mutableSetOf<String>()
     val drawableDirs = File("$projectDir/$baseModule").walk()
         .filter {
             it.isDirectory && it.name.startsWith(ResourceType.drawable) && it.parent.contains("res")
@@ -55,234 +201,125 @@ fun main(args: Array<String>) {
     fullyQualifyResources(affectedFiles, ResourceType.drawable, drawables.map { it.key }, basePackageName)
 
     affectedFiles.clear()
-    val valuesDirs = File("$projectDir/$baseModule").walk()
-        .filter {
-            it.isDirectory && it.name.startsWith("values") && it.parent.contains("res")
+}
+
+private fun refactorDimens(
+    dimens: Map<String, MutableList<Usage>>,
+    valuesDirs: Sequence<File>,
+    projectDir: String,
+    baseModule: String,
+    basePackageName: String
+) {
+
+
+    val affectedFiles = mutableSetOf<String>()
+
+
+    val dimensFiles = valuesDirs.flatMap {
+        it.walk()
+    }.filter {
+        !it.isDirectory && it.nameWithoutExtension.startsWith("dimens") && it.extension == "xml"
+    }
+
+
+    val dimenRegex = "< *dimen *name *= *\"([a-zA-Z0-9_.]+)\"".toRegex()
+
+    val filesToAppendTo = mutableMapOf<String, String>()
+
+    dimensFiles.forEach { file ->
+
+        println("in ${file.path}")
+
+        val br = file.bufferedReader()
+
+
+        var writeFile = false
+        val newFile = File(file.absolutePath + "_tmp").apply {
+            createNewFile()
         }
+        newFile.bufferedWriter().use { bw ->
+            var line = br.readLine()
+            while (line != null) {
 
-    if (namespaceDimens) {
-        val dimens = usages.getMonoModuleDimensions()
+                var writeLine = true
+                val matches = dimenRegex.findAll(line)
+                matches.forEach {
 
+                    val (dimenName) = it.destructured
+                    val dimen = dimens[dimenName]
+                    if (dimen != null) {
 
-        val dimensFiles = valuesDirs.flatMap {
-            it.walk()
-        }.filter {
-            !it.isDirectory && it.nameWithoutExtension.startsWith("dimens") && it.extension == "xml"
-        }
+                        val module = dimen[0].module
+                        if (!file.path.contains("$projectDir/$module")) {
+                            val path = file.path.replace("$projectDir/$baseModule", "$projectDir/$module")
+                            val fileContent = filesToAppendTo[path] ?: ""
+                            filesToAppendTo[path] = fileContent + line + "\n"
+                            writeFile = true
+                            writeLine = false
 
-
-        val dimenRegex = "< *dimen *name *= *\"([a-zA-Z0-9_.]+)\"".toRegex()
-
-        val filesToAppendTo = mutableMapOf<String, String>()
-
-        dimensFiles.forEach { file ->
-
-            println("in ${file.path}")
-
-            val br = file.bufferedReader()
-
-
-            var writeFile = false
-            val newFile = File(file.absolutePath + "_tmp").apply {
-                createNewFile()
-            }
-            newFile.bufferedWriter().use { bw ->
-                var line = br.readLine()
-                while (line != null) {
-
-                    var writeLine = true
-                    val matches = dimenRegex.findAll(line)
-                    matches.forEach {
-
-                        val (dimenName) = it.destructured
-                        val dimen = dimens[dimenName]
-                        if (dimen != null) {
-
-                            val module = dimen[0].module
-                            if (!file.path.contains("$projectDir/$module")) {
-                                val path = file.path.replace("$projectDir/$baseModule", "$projectDir/$module")
-                                val fileContent = filesToAppendTo[path] ?: ""
-                                filesToAppendTo[path] = fileContent + line + "\n"
-                                writeFile = true
-                                writeLine = false
-
-                            }
                         }
                     }
-
-
-                    if (writeLine)
-                        bw.write(line)
-
-                    line = br.readLine()
-
-                    if (writeLine && line != null)
-                        bw.newLine()
                 }
 
-                if (writeFile)
-                    newFile.renameTo(file)
-                else
-                    newFile.deleteOnExit()
+
+                if (writeLine)
+                    bw.write(line)
+
+                line = br.readLine()
+
+                if (writeLine && line != null)
+                    bw.newLine()
             }
 
-
+            if (writeFile)
+                newFile.renameTo(file)
+            else
+                newFile.deleteOnExit()
         }
 
-        filesToAppendTo.forEach { key, value ->
-            val file = File(key)
-            val fileExists = file.exists()
 
-            val fileContent =
-                if (fileExists) {
-                    val content = file.readText().substringBeforeLast("</resources>")
-                    "$content$value</resources>"
-                } else {
-                    "<resources>\n$value</resources>"
-                }
+    }
 
-            if (!fileExists) {
-                file.parentFile.mkdirs()
-                file.createNewFile()
+    filesToAppendTo.forEach { key, value ->
+        val file = File(key)
+        val fileExists = file.exists()
+
+        val fileContent =
+            if (fileExists) {
+                val content = file.readText().substringBeforeLast("</resources>")
+                "$content$value</resources>"
+            } else {
+                "<resources>\n$value</resources>"
             }
 
-            file.writeText(fileContent)
-
+        if (!fileExists) {
+            file.parentFile.mkdirs()
+            file.createNewFile()
         }
 
-
-        dimens.forEach { dimen ->
-            val entry = dimen.value[0]
-            val packageName = getPackageNameFromModule(projectDir, entry.module)
-            affectedFiles.addAll(
-                findAndReplaceRImports(
-                    basePackageName,
-                    packageName,
-                    entry.files,
-                    dimen.key,
-                    ResourceType.dimen
-                )
-            )
-        }
-
-
-        fullyQualifyResources(affectedFiles, ResourceType.dimen, dimens.map { it.key }, basePackageName)
-
-        affectedFiles.clear()
+        file.writeText(fileContent)
 
     }
 
 
-    if (true) {
-
-        val strings = usages.getMonoModuleStrings()
-
-        val stringsFiles = valuesDirs.flatMap {
-            it.walk()
-        }.filter {
-            !it.isDirectory && it.nameWithoutExtension.contains("strings") && it.extension == "xml"
-        }
-
-
-        val stringRegex = "< *string .* *name *= *\"([a-zA-Z0-9_]+)\"".toRegex()
-
-        val filesToAppendTo = mutableMapOf<String, String>()
-
-        stringsFiles.forEach { file ->
-
-            println("in ${file.path}")
-
-            val br = file.bufferedReader()
-
-
-            var writeFile = false
-            val newFile = File(file.absolutePath + "_tmp").apply {
-                createNewFile()
-            }
-            newFile.bufferedWriter().use { bw ->
-                var line = br.readLine()
-                while (line != null) {
-
-                    var writeLine = true
-                    val matches = stringRegex.findAll(line)
-                    matches.forEach {
-
-                        val (stringName) = it.destructured
-                        val string = strings[stringName]
-                        if (string != null) {
-
-                            val module = string[0].module
-                            if (!file.path.contains("$projectDir/$module")) {
-                                val path = file.path.replace("$projectDir/$baseModule", "$projectDir/$module")
-                                val fileContent = filesToAppendTo[path] ?: ""
-                                filesToAppendTo[path] = fileContent + line + "\n"
-                                writeFile = true
-                                writeLine = false
-
-                            }
-                        }
-                    }
-
-
-                    if (writeLine)
-                        bw.write(line)
-
-                    line = br.readLine()
-
-                    if (writeLine && line != null)
-                        bw.newLine()
-                }
-
-                if (writeFile)
-                    newFile.renameTo(file)
-                else
-                    newFile.deleteOnExit()
-            }
-
-
-        }
-
-        filesToAppendTo.forEach { key, value ->
-            val file = File(key)
-            val fileExists = file.exists()
-
-            val fileContent =
-                if (fileExists) {
-                    val content = file.readText().substringBeforeLast("</resources>")
-                    "$content$value</resources>"
-                } else {
-                    "<resources>\n$value</resources>"
-                }
-
-            if (!fileExists) {
-                file.parentFile.mkdirs()
-                file.createNewFile()
-            }
-
-            file.writeText(fileContent)
-
-        }
-
-
-        strings.forEach { string ->
-            val entry = string.value[0]
-            val packageName = getPackageNameFromModule(projectDir, entry.module)
-            affectedFiles.addAll(
-                findAndReplaceRImports(
-                    basePackageName,
-                    packageName,
-                    entry.files,
-                    string.key,
-                    ResourceType.string
-                )
+    dimens.forEach { dimen ->
+        val entry = dimen.value[0]
+        val packageName = getPackageNameFromModule(projectDir, entry.module)
+        affectedFiles.addAll(
+            findAndReplaceRImports(
+                basePackageName,
+                packageName,
+                entry.files,
+                dimen.key,
+                ResourceType.dimen
             )
-        }
-
-
-
-        fullyQualifyResources(affectedFiles, ResourceType.string, strings.map { it.key }, basePackageName)
-
+        )
     }
+
+
+    fullyQualifyResources(affectedFiles, ResourceType.dimen, dimens.map { it.key }, basePackageName)
+
+    affectedFiles.clear()
 }
 
 private fun findUsages(projectDir: String): Usages {
@@ -592,7 +629,9 @@ private fun fullyQualifyResources(
 
 
 
-                        if (prefix.isBlank() && ((resourceType != resType) || (resourceType == resType && !resourcesToExclude.contains(resourceName)))
+                        if (prefix.isBlank() && ((resourceType != resType) || (resourceType == resType && !resourcesToExclude.contains(
+                                resourceName
+                            )))
                         ) {
                             println("-----")
                             println(line)
@@ -633,7 +672,9 @@ private fun fullyQualifyResources(
             matches.forEach {
                 val (prefix, _, resourceType, resourceName) = it.destructured
 
-                if ((prefix.isBlank() || !prefix.endsWith(".")) && ((resourceType != resType) || (resourceType == resType && !resourcesToExclude.contains(resourceName)))
+                if ((prefix.isBlank() || !prefix.endsWith(".")) && ((resourceType != resType) || (resourceType == resType && !resourcesToExclude.contains(
+                        resourceName
+                    )))
                 ) {
                     text = text.replaceRange(it.groups[1]!!.range, "$packageName.")
                     writeFile = true
