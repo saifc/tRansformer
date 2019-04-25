@@ -1,14 +1,296 @@
+import org.w3c.dom.Element
 import java.io.File
+import java.io.FileInputStream
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
+import javax.xml.parsers.DocumentBuilderFactory
+
 
 fun main(args: Array<String>) {
+    refactor()
+
+    println("Step 1 done")
+    readLine()
+    val modules = arrayOf(
+        "app",
+        "materialsearchview",
+        "auth",
+        "hiw",
+        "about",
+        "createpot",
+        "contribute",
+        "giftcard",
+        "notifications",
+        "contributors",
+        "thankcontributors",
+        "pots",
+        "potdetails",
+        "potoffer",
+        "potuse",
+        "account",
+        "wiretransfer",
+        "partners",
+        "prices",
+        "confirmation",
+        "marketingcampaign",
+        "materialstepperview",
+        "actionmenu"
+    )
+    val baseModule = "core"
+    val projectDir = "/Users/saif/pot_commun_android"
+    val basePackageName = getPackageNameFromModule(projectDir, baseModule)
 
 
+    val resRegex =
+        "([a-zA-Z0-9_.]*)R\\.(dimen|drawable|color|string|style|raw|array|anim|layout|bool)\\.([a-zA-Z0-9_]+)".toRegex()
+    val types = mutableSetOf<String>()
+    modules.forEach { module ->
+        println("$module:")
+        val moduleResources = findModuleResources(projectDir, module)
+        //val packageName = getPackageNameFromModule(projectDir, module)
+
+        types.addAll(moduleResources.keys)
+
+        File("$projectDir/$module").walk()
+            .filter { !it.isDirectory && (it.name.endsWith(".xml") || it.name.endsWith(".java") || it.name.endsWith(".kt")) }
+            .forEach { file ->
+
+                val br = file.bufferedReader()
+                var writeFile = false
+
+                val newFile = File(file.absolutePath + "_tmp").apply {
+                    createNewFile()
+                }
+
+                newFile.bufferedWriter().use { bw ->
+                    var line = br.readLine()
+                    while (line != null) {
+                        val matches = resRegex.findAll(line).toList().reversed()
+                        matches.forEach {
+                            val (prefix, resourceType, resourceName) = it.destructured
+                            val localResources = moduleResources[resourceType]
+                            var isLocalResource = localResources?.contains(resourceName)
+                            if (isLocalResource != true && resourceType == "style") {
+                                isLocalResource = localResources?.contains(resourceName.replace("_", "."))
+                            }
+                            //TODO make parameterizable
+                            if (prefix.isBlank() && isLocalResource != true) {
+                                line = line.replaceRange(
+                                    it.groups[1]!!.range,
+                                    "$basePackageName."
+                                )
+
+                                writeFile = true
+                            }
+                        }
+
+                        bw.write(line)
+                        line = br.readLine()
+                        if (line != null) {
+                            bw.newLine()
+                        }
+                    }
+                    if (writeFile)
+                        newFile.renameTo(file)
+                    else
+                        newFile.delete()
+                }
+            }
+
+        //  convertToRIfNeeded(module)
+    }
+
+    //refactor()
+    println("Step 2 done")
+    readLine()
+    modules.forEach { module ->
+        println("in module $module")
+        convertToRIfNeeded(module)
+    }
+    println(types)
+}
+
+private fun convertToRIfNeeded(module: String) {
+    val baseModule = "core"
+    val projectDir = "/Users/saif/pot_commun_android"
+    val basePackageName = getPackageNameFromModule(projectDir, baseModule)
+
+
+    val map = findModuleResources(projectDir, module)
+
+    if (module == "contribute") {
+        println("convertToRIfNeeded:")
+        println(map)
+    }
+
+
+    val resRegex = "(@)(dimen|drawable|color|string)(/)([a-zA-Z0-9_]+)[:\\s},)]".toRegex()
+
+    val projectFile = File("$projectDir/$module")
+    projectFile.walk()
+        .filter { !it.isDirectory && it.name.endsWith(".xml") && !it.isHidden && it.parent.contains("layout") }
+        .forEach { file ->
+
+            val br = file.bufferedReader()
+
+            var line = br.readLine()
+
+            var writeFile = false
+
+            val newFile = File(file.absolutePath + "_tmp").apply {
+                createNewFile()
+            }
+
+            newFile.bufferedWriter().use { bw ->
+
+                while ((line) != null) {
+
+                    val matches = resRegex.findAll(line).toList().reversed()
+                    matches.forEach {
+                        val (_, resourceType, _, resourceName) = it.destructured
+
+                        if (file.nameWithoutExtension == "contribute_pot_activity") {
+                            println("bufferedWriter:")
+                            println(module)
+                            println(map)
+                        }
+                        val localResources = map[resourceType]
+                        val isLocalResource = localResources?.contains(resourceName) ?: false
+
+                        if (!isLocalResource) {
+                            writeFile = true
+
+                            when (resourceType) {
+
+                                ResourceType.dimen -> {
+                                    line = changeToRResource(
+                                        line,
+                                        it,
+                                        "context.resources.getDimension($basePackageName.R."
+                                    )
+                                }
+
+                                ResourceType.drawable -> {
+                                    line = changeToRResource(
+                                        line,
+                                        it,
+                                        "androidx.appcompat.content.res.AppCompatResources.getDrawable(context, $basePackageName.R."
+                                    )
+                                }
+
+                                ResourceType.color -> {
+                                    line = changeToRResource(
+                                        line,
+                                        it,
+                                        "androidx.core.content.ContextCompat.getColor(context, $basePackageName.R."
+                                    )
+                                }
+
+                                ResourceType.string -> {
+                                    line = changeToRResource(
+                                        line,
+                                        it,
+                                        "context.getString($basePackageName.R."
+                                    )
+                                }
+
+                            }
+                        }
+                    }
+
+
+                    bw.write(line)
+                    line = br.readLine()
+                    if (line != null) {
+                        bw.newLine()
+                    }
+                }
+            }
+            if (writeFile)
+                newFile.renameTo(file)
+            else
+                newFile.delete()
+        }
+}
+
+private fun changeToRResource(line: String, it: MatchResult, prefix: String): String {
+    return line.replaceRange(it.groups[4]!!.range, "${it.groupValues[4]})")
+        .replaceRange(it.groups[3]!!.range, ".")
+        .replaceRange(it.groups[1]!!.range, prefix)
+}
+
+private fun findModuleResources(
+    projectDir: String,
+    module: String
+): MutableMap<String, MutableSet<String>> {
+    val map = mutableMapOf<String, MutableSet<String>>()
+    File("$projectDir/$module").walk()
+        .filter {
+            it.isDirectory && it.parent.contains("res")
+        }.forEach {
+            if (it.name.startsWith("values")) {
+                for (file in it.list()) {
+                    //TODO windowsify
+                    if (file.substringBefore(".") == "")
+                        continue
+                    val dbFactory = DocumentBuilderFactory.newInstance()
+                    val dBuilder = dbFactory.newDocumentBuilder()
+                    val xmlInput = FileInputStream(it.absolutePath + "/" + file)
+                    val doc = dBuilder.parse(xmlInput)
+                    doc.documentElement.normalize()
+                    val nodes = doc.getElementsByTagName("resources").item(0).childNodes
+                    for (i in 0 until nodes.length) {
+                        val child = nodes.item(i)
+                        val name = child.nodeName
+                        if (!name.startsWith("#")) {
+                            val element =
+                                if (name != "item")
+                                    name
+                                else
+                                    (child as Element).getAttribute("type")
+
+                            map.putElement(element, (child as Element).getAttribute("name"))
+                        }
+
+                    }
+                }
+
+
+            } else {
+
+                val name = if (it.name.contains("-")) {
+                    it.name.substringBefore("-")
+                } else {
+                    it.name
+                }
+                for (file in it.list()) {
+                    map.putElement(name, file.substringBeforeLast("."))
+                }
+            }
+
+        }
+    return map
+}
+
+private fun MutableMap<String, MutableSet<String>>.putElement(key: String, element: String) {
+    var value = this[key]
+
+
+    if (value == null) {
+        value = mutableSetOf(element)
+        this[key] = value
+    } else {
+        value.add(element)
+    }
+}
+
+
+private fun refactor() {
     val namespaceDimens = true
     val namespaceDrawable = true
     val namespaceStrings = true
     val namespaceRaws = true
+    val namespaceColors = true
 
     val baseModule = "core"
     val projectDir = "/Users/saif/pot_commun_android"
@@ -38,21 +320,122 @@ fun main(args: Array<String>) {
         refactorStrings(usages.getMonoModuleStrings(), valuesDirs, projectDir, baseModule, basePackageName)
     }
 
-    if(true){
-        refactorColors(usages.getMonoModuleColors(), projectDir, baseModule, basePackageName)
+    if (namespaceColors) {
+        refactorColors(usages.getMonoModuleColors(), valuesDirs, projectDir, baseModule, basePackageName)
     }
-
-
 }
 
 fun refactorColors(
     colors: Map<String, MutableList<Usage>>,
+    valuesDirs: Sequence<File>,
     projectDir: String,
     baseModule: String,
     basePackageName: String
 ) {
-    refactorMove(projectDir, baseModule, colors, ResourceType.color, basePackageName)
+    val affectedFiles = refactorMove(projectDir, baseModule, colors, ResourceType.color, basePackageName)
+    val files = valuesDirs.flatMap {
+        it.walk()
+    }.filter {
+        !it.isDirectory && it.nameWithoutExtension.contains("colors") && it.extension == "xml"
+    }
 
+
+    val regex = "< *color .*name *= *\"([a-zA-Z0-9_]+)\"".toRegex()
+
+    val filesToAppendTo = mutableMapOf<String, String>()
+
+    files.forEach { file ->
+
+        println("in ${file.path}")
+
+        val br = file.bufferedReader()
+
+
+        var writeFile = false
+        val newFile = File(file.absolutePath + "_tmp").apply {
+            createNewFile()
+        }
+        newFile.bufferedWriter().use { bw ->
+            var line = br.readLine()
+            while (line != null) {
+
+                var writeLine = true
+                val matches = regex.findAll(line)
+                matches.forEach {
+
+                    val (resName) = it.destructured
+                    val res = colors[resName]
+                    if (res != null) {
+
+                        val module = res[0].module
+                        if (!file.path.contains("$projectDir/$module")) {
+                            val path = file.path.replace("$projectDir/$baseModule", "$projectDir/$module")
+                            val fileContent = filesToAppendTo[path] ?: ""
+                            filesToAppendTo[path] = fileContent + line + "\n"
+                            writeFile = true
+                            writeLine = false
+
+                        }
+                    }
+                }
+
+
+                if (writeLine)
+                    bw.write(line)
+
+                line = br.readLine()
+
+                if (writeLine && line != null)
+                    bw.newLine()
+            }
+
+            if (writeFile)
+                newFile.renameTo(file)
+            else
+                newFile.delete()
+        }
+
+
+    }
+
+    filesToAppendTo.forEach { key, value ->
+        val file = File(key)
+        val fileExists = file.exists()
+
+        val fileContent =
+            if (fileExists) {
+                val content = file.readText().substringBeforeLast("</resources>")
+                "$content$value</resources>"
+            } else {
+                "<resources>\n$value</resources>"
+            }
+
+        if (!fileExists) {
+            file.parentFile.mkdirs()
+            file.createNewFile()
+        }
+
+        file.writeText(fileContent)
+
+    }
+
+
+    colors.forEach { string ->
+        val entry = string.value[0]
+        val packageName = getPackageNameFromModule(projectDir, entry.module)
+        affectedFiles.addAll(
+            findAndReplaceRImports(
+                basePackageName,
+                packageName,
+                entry.files,
+                string.key,
+                ResourceType.color
+            )
+        )
+    }
+
+
+    fullyQualifyResources(affectedFiles, ResourceType.color, colors.map { it.key }, basePackageName)
 }
 
 private fun refactorStrings(
@@ -124,7 +507,7 @@ private fun refactorStrings(
             if (writeFile)
                 newFile.renameTo(file)
             else
-                newFile.deleteOnExit()
+                newFile.delete()
         }
 
 
@@ -179,7 +562,8 @@ private fun refactorRaws(
     baseModule: String,
     basePackageName: String
 ) {
-    refactorMove(projectDir, baseModule, raws, ResourceType.raw, basePackageName)
+    val affectedFiles = refactorMove(projectDir, baseModule, raws, ResourceType.raw, basePackageName)
+    fullyQualifyResources(affectedFiles, ResourceType.raw, raws.map { it.key }, basePackageName)
 
 }
 
@@ -189,7 +573,8 @@ private fun refactorDrawables(
     baseModule: String,
     basePackageName: String
 ) {
-    refactorMove(projectDir, baseModule, drawables, ResourceType.drawable, basePackageName)
+    val affectedFiles = refactorMove(projectDir, baseModule, drawables, ResourceType.drawable, basePackageName)
+    fullyQualifyResources(affectedFiles, ResourceType.drawable, drawables.map { it.key }, basePackageName)
 }
 
 private fun refactorMove(
@@ -198,7 +583,7 @@ private fun refactorMove(
     resources: Map<String, MutableList<Usage>>,
     resType: String,
     basePackageName: String
-) {
+): MutableSet<String> {
     val affectedFiles = mutableSetOf<String>()
     val dirs = File("$projectDir/$baseModule").walk()
         .filter {
@@ -234,10 +619,9 @@ private fun refactorMove(
 
     }
 
+    return affectedFiles
 
-    fullyQualifyResources(affectedFiles, resType, resources.map { it.key }, basePackageName)
 }
-
 
 
 private fun refactorDimens(
@@ -247,8 +631,6 @@ private fun refactorDimens(
     baseModule: String,
     basePackageName: String
 ) {
-
-
 
 
     val dimensFiles = valuesDirs.flatMap {
@@ -310,7 +692,7 @@ private fun refactorDimens(
             if (writeFile)
                 newFile.renameTo(file)
             else
-                newFile.deleteOnExit()
+                newFile.delete()
         }
 
 
@@ -423,7 +805,8 @@ private fun findUsages(projectDir: String): Usages {
 
     val codeResRegex =
         "([a-zA-Z0-9_]+[\\n\\r\\s]*\\.[a-zA-Z0-9_.\\n\\r\\s]*\\.[\\n\\r\\s]*|)(R[\\n\\r\\s]*.[\\n\\r\\s]*)(dimen|drawable|color|string|style|raw|array)[\\n\\r\\s]*\\.[\\n\\r\\s]*([a-zA-Z0-9_]+)".toRegex()
-    projectFile.walk().filter { !it.isDirectory && (it.name.endsWith(".kt") || it.name.endsWith(".java")) && !it.path.contains("/test/") }
+    projectFile.walk()
+        .filter { !it.isDirectory && (it.name.endsWith(".kt") || it.name.endsWith(".java")) && !it.path.contains("/test/") }
         .forEach { file ->
             val text = file.readText()
 
@@ -557,7 +940,7 @@ fun findAndReplaceRImports(
         if (writeFile)
             newFile.renameTo(oldFile)
         else
-            newFile.deleteOnExit()
+            newFile.delete()
     }
 
     val importRCodeRegex =
@@ -699,7 +1082,7 @@ private fun fullyQualifyResources(
             if (writeFile)
                 newFile.renameTo(oldFile)
             else
-                newFile.deleteOnExit()
+                newFile.delete()
 
         }
 
