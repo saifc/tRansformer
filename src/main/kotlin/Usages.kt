@@ -1,5 +1,4 @@
-class Usages {
-
+class Usages(private val baseModule: String) {
 
     private val dimens = mutableMapOf<String, MutableList<Usage>>()
     private val drawables = mutableMapOf<String, MutableList<Usage>>()
@@ -18,6 +17,7 @@ class Usages {
     fun putColor(key: String, module: String, file: String) {
         putElement(key, module, file, colors)
     }
+
     fun putString(key: String, module: String, file: String) {
         putElement(key, module, file, strings)
     }
@@ -65,11 +65,6 @@ class Usages {
         return getMonoModuleResourcesPerType(colors)
     }
 
-
-    private fun getMonoModuleResourcesPerType(map: Map<String, MutableList<Usage>>) = map.filter { it.value.size == 1 && it.value[0].module != "core" }
-    private fun getMultiModuleResourcesPerType(map: Map<String, MutableList<Usage>>) = map.filter { it.value.size != 1 }
-
-    override fun toString(): String {
-        return "dimens: $dimens"
-    }
+    private fun getMonoModuleResourcesPerType(map: Map<String, MutableList<Usage>>) =
+        map.filter { it.value.size == 1 && it.value[0].module != baseModule }
 }

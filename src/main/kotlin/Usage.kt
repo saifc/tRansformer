@@ -1,4 +1,4 @@
-class Usage(val module : String){
+class Usage(val module: String) {
     val files = mutableSetOf<String>()
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -18,6 +18,4 @@ class Usage(val module : String){
     override fun toString(): String {
         return "$module -> $files"
     }
-
-
 }

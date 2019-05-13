@@ -1,7 +1,6 @@
 import java.io.File
 import java.util.ArrayList
 
-
 fun main() {
     val baseModule = "core"
     val projectDir = "/Users/saif/pot_commun_android"
@@ -18,13 +17,11 @@ private fun refactorDimens(
     projectDir: String
 ) {
 
-
     val dimensFiles = valuesDirs.flatMap {
         it.walk()
     }.filter {
         !it.isDirectory && it.nameWithoutExtension.startsWith("dimens") && it.extension == "xml"
     }
-
 
     val dimenRegex = "< *dimen *name *= *\"([a-zA-Z0-9_.]+)\"".toRegex()
 
@@ -32,7 +29,6 @@ private fun refactorDimens(
     dimensFiles.forEach { file ->
 
         val br = file.bufferedReader()
-
 
         var line = br.readLine()
         while (line != null) {
@@ -42,7 +38,6 @@ private fun refactorDimens(
 
                 val (dimenName) = it.destructured
                 val cmd = "grep -r -s \"$dimenName\" $folder  | grep  -v \"fr/lepotcommun/lpc\""
-
 
                 // you need a shell to execute a command pipeline
                 val commands = ArrayList<String>()
@@ -56,7 +51,7 @@ private fun refactorDimens(
                 if (result == 0) {
                     val stdout = commandExecutor.standardOutputFromCommand
                     println(stdout)
-                }else {
+                } else {
                     val stderr = commandExecutor.standardErrorFromCommand
                     if (!stderr.isBlank()) {
                         println("STDERR")
@@ -67,12 +62,7 @@ private fun refactorDimens(
             }
 
             line = br.readLine()
-
-
         }
 
-
     }
-
-
 }
