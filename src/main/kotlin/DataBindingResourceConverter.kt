@@ -9,7 +9,7 @@ class DataBindingResourceConverter(private val resourceFinder: ResourceFinder) {
 
         val projectFile = File("$projectDir/$module")
         projectFile.walk()
-            .filter { !it.isDirectory && it.extension.endsWith(".xml") && !it.isHidden && it.parent.contains("layout") }
+            .filter { !it.isDirectory && it.name.endsWith(".xml") && !it.isHidden && it.parent.contains("layout") }
             .forEach { file ->
 
                 val br = file.bufferedReader()
