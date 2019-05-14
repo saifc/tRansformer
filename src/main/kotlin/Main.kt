@@ -22,10 +22,10 @@ fun main(args: Array<String>) {
 
     println("Step 2 done")
 
-    val converter = DataBindingResourceConverter(ResourceFinder)
+    val converter = DataBindingResourceConverter(projectDir, basePackageName, ResourceFinder)
     modules.forEach { module ->
         println("in module $module")
-        converter.convertToRIfNeeded(module, projectDir, basePackageName)
+        converter.convertToRIfNeeded(module)
     }
 }
 

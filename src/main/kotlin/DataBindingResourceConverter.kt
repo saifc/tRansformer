@@ -1,9 +1,13 @@
 import java.io.File
 
-class DataBindingResourceConverter(private val resourceFinder: ResourceFinder) {
+class DataBindingResourceConverter(
+    private val projectDir: String,
+    private val basePackageName: String,
+    private val resourceFinder: ResourceFinder
+) {
     private val resRegex = "(@)(dimen|drawable|color|string)(/)([a-zA-Z0-9_]+)[:\\s},)]".toRegex()
 
-    fun convertToRIfNeeded(module: String, projectDir: String, basePackageName: String) {
+    fun convertToRIfNeeded(module: String) {
 
         val map = resourceFinder.findModuleResources(projectDir, module)
 
