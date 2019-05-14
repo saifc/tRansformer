@@ -14,7 +14,7 @@ open class RefactorRemoveAndAppend(
 
     private val regex = "< *$resType .* *name *= *\"([a-zA-Z0-9_]+)\"".toRegex()
 
-    open operator fun invoke(
+    override operator fun invoke(
         resources: Map<String, MutableList<Usage>>
     ) {
         val files = findResourceTypeFiles()

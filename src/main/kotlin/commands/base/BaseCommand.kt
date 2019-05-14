@@ -9,7 +9,7 @@ abstract class BaseCommand(
     protected val projectDir: String,
     private val packageNameFinder: PackageNameFinder,
     protected val baseModule: String
-) {
+) : Command {
     private val basePackageName by lazy(LazyThreadSafetyMode.NONE) {
         packageNameFinder.getPackageNameFromModule(
             projectDir,

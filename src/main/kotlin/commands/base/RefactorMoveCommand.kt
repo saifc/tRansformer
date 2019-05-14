@@ -13,14 +13,14 @@ open class RefactorMoveCommand(
     baseModule: String
 ) : BaseCommand(resType, projectDir, packageNameFinder, baseModule) {
 
-    open operator fun invoke(
+    override operator fun invoke(
         resources: Map<String, MutableList<Usage>>
     ) {
         val affectedFiles = refactorMove(resources)
         fullyQualifyResources(affectedFiles, resources)
     }
 
-    protected fun refactorMove(resources: Map<String, MutableList<Usage>>): MutableSet<String> {
+    private fun refactorMove(resources: Map<String, MutableList<Usage>>): MutableSet<String> {
         val affectedFiles = mutableSetOf<String>()
         val dirs = File("$projectDir/$baseModule").walk()
             .filter {
