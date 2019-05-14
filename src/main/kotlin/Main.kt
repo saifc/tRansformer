@@ -71,7 +71,7 @@ fun refactorColors(
     projectDir: String,
     baseModule: String
 ) {
-    val command = RefactorColors(projectDir, PackageNameFinder, baseModule, valuesDirs)
+    val command = RefactorColors(projectDir, baseModule, valuesDirs)
     command(colors)
 }
 
@@ -81,7 +81,7 @@ private fun refactorStrings(
     projectDir: String,
     baseModule: String
 ) {
-    val command = RefactorStrings(projectDir, PackageNameFinder, baseModule, valuesDirs)
+    val command = RefactorStrings(projectDir, baseModule, valuesDirs)
     command(strings)
 }
 
@@ -91,7 +91,7 @@ private fun refactorRaws(
     baseModule: String
 ) {
 
-    val command = RefactorRaws(projectDir, PackageNameFinder, baseModule)
+    val command = RefactorRaws(projectDir, baseModule)
     command(raws)
 }
 
@@ -101,7 +101,7 @@ private fun refactorDrawables(
     baseModule: String
 ) {
 
-    val command = RefactorDrawables(projectDir, PackageNameFinder, baseModule)
+    val command = RefactorDrawables(projectDir, baseModule)
     command(drawables)
 }
 
@@ -112,7 +112,7 @@ private fun refactorDimens(
     baseModule: String
 ) {
 
-    val command = RefactorDimensions(projectDir, PackageNameFinder, baseModule, valuesDirs)
+    val command = RefactorDimensions(projectDir, baseModule, valuesDirs)
     command(dimens)
 }
 

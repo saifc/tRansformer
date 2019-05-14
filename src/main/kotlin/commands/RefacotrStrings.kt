@@ -8,7 +8,6 @@ import java.io.File
 
 class RefactorStrings(
     projectDir: String,
-    packageNameFinder: PackageNameFinder,
     baseModule: String,
     valuesDirs: Sequence<File>
-) : Command by RefactorRemoveAndAppend(ResourceType.string, projectDir, packageNameFinder, baseModule, valuesDirs)
+) : Command by RefactorRemoveAndAppend(ResourceType.string, projectDir, PackageNameFinder, baseModule, valuesDirs)
