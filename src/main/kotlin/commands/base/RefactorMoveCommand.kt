@@ -6,7 +6,7 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
-abstract class RefactorMoveCommand(
+open class RefactorMoveCommand(
     resType: String,
     projectDir: String,
     packageNameFinder: PackageNameFinder,

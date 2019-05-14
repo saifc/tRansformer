@@ -4,7 +4,7 @@ import PackageNameFinder
 import Usage
 import java.io.File
 
-abstract class RefactorRemoveAndAppend(
+open class RefactorRemoveAndAppend(
     resType: String,
     projectDir: String,
     packageNameFinder: PackageNameFinder,
