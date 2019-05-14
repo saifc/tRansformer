@@ -7,10 +7,10 @@ import java.io.File
 abstract class BaseCommand(
     protected val resType: String,
     protected val projectDir: String,
-    protected val packageNameFinder: PackageNameFinder,
+    private val packageNameFinder: PackageNameFinder,
     protected val baseModule: String
 ) {
-    protected val basePackageName by lazy(LazyThreadSafetyMode.NONE) {
+    private val basePackageName by lazy(LazyThreadSafetyMode.NONE) {
         packageNameFinder.getPackageNameFromModule(
             projectDir,
             baseModule
@@ -20,7 +20,6 @@ abstract class BaseCommand(
         "([a-zA-Z0-9_.]*)(R.)(dimen|drawable|color|string|style|raw|array)[.]([a-zA-Z0-9_]+)".toRegex()
     private val codeRegex =
         "([a-zA-Z0-9_]+[\\n\\r\\s]*\\.[a-zA-Z0-9_.\\n\\r\\s]*\\.[\\n\\r\\s]*|[a-zA-Z0-9_]*\\.?)(R[\\n\\r\\s]*.[\\n\\r\\s]*)(dimen|drawable|color|string|style|raw|array)[\\n\\r\\s]*\\.[\\n\\r\\s]*([a-zA-Z0-9_]+)".toRegex()
-
 
     private val importRRegex by lazy(LazyThreadSafetyMode.NONE) { "<import *type *= *\"($basePackageName)\\.R\"".toRegex() }
 
@@ -192,7 +191,6 @@ abstract class BaseCommand(
         val localImportRCodeRegex = "import +$packageName\\.R;?\n".toRegex()
         val importRegex = "import [a-zA-Z0-9_.]+\n".toRegex()
 
-
         //TODO extract
         val codeRegex =
             "(([a-zA-Z0-9_]+[\\n\\r\\s]*\\.[\\n\\r\\s]*)+|[a-zA-Z0-9_]*)(R[\\n\\r\\s]*.[\\n\\r\\s]*)(dimen|drawable|color|string|style|raw|array)[\\n\\r\\s]*\\.[\\n\\r\\s]*([a-zA-Z0-9_]+)([\\n\\r\\s]|\\)|;|,)".toRegex()
@@ -233,7 +231,6 @@ abstract class BaseCommand(
                 if (writeFile) {
                     file.writeText(text)
                 }
-
 
             }
 
