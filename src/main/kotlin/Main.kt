@@ -9,6 +9,7 @@ fun main(args: Array<String>) {
 
     val projectDir = if (args.isNotEmpty()) args[0] else "/Users/saif/potcommun_android"
     val baseModule = if (args.size > 1) args[1] else "core"
+
     val basePackageName = PackageNameFinder.getPackageNameFromModule(projectDir, baseModule)
 
     refactor(projectDir, baseModule)
@@ -21,9 +22,10 @@ fun main(args: Array<String>) {
 
     println("Step 2 done")
 
+    val converter = DataBindingResourceConverter(ResourceFinder)
     modules.forEach { module ->
         println("in module $module")
-        DataBindingResourceConverter(ResourceFinder).convertToRIfNeeded(module, projectDir, basePackageName)
+        converter.convertToRIfNeeded(module, projectDir, basePackageName)
     }
 }
 
