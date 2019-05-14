@@ -11,11 +11,12 @@ import java.io.File
 class RefactorColors(
     projectDir: String,
     baseModule: String,
-    valuesDirs: Sequence<File>
+    valuesDirs: Sequence<File>,
+    packageNameFinder: PackageNameFinder
 ) : Command {
-    private val refactorMoveCommand = RefactorMoveCommand(ResourceType.color, projectDir, PackageNameFinder, baseModule)
+    private val refactorMoveCommand = RefactorMoveCommand(ResourceType.color, projectDir, baseModule, packageNameFinder)
     private val refactorRemoveAndAppend =
-        RefactorRemoveAndAppend(ResourceType.color, projectDir, PackageNameFinder, baseModule, valuesDirs)
+        RefactorRemoveAndAppend(ResourceType.color, projectDir, baseModule, valuesDirs, packageNameFinder)
 
     override fun invoke(resources: Map<String, MutableList<Usage>>) {
 

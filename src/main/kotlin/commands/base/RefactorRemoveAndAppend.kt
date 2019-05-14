@@ -7,10 +7,10 @@ import java.io.File
 open class RefactorRemoveAndAppend(
     resType: String,
     projectDir: String,
-    packageNameFinder: PackageNameFinder,
     baseModule: String,
-    private val valuesDirs: Sequence<File>
-) : BaseCommand(resType, projectDir, packageNameFinder, baseModule) {
+    private val valuesDirs: Sequence<File>,
+    packageNameFinder: PackageNameFinder
+) : BaseCommand(resType, projectDir, baseModule,packageNameFinder) {
 
     private val regex = "< *$resType .* *name *= *\"([a-zA-Z0-9_]+)\"".toRegex()
 

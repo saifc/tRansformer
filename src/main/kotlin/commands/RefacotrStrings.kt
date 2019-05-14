@@ -9,5 +9,6 @@ import java.io.File
 class RefactorStrings(
     projectDir: String,
     baseModule: String,
-    valuesDirs: Sequence<File>
-) : Command by RefactorRemoveAndAppend(ResourceType.string, projectDir, PackageNameFinder, baseModule, valuesDirs)
+    valuesDirs: Sequence<File>,
+    packageNameFinder : PackageNameFinder
+) : Command by RefactorRemoveAndAppend(ResourceType.string, projectDir, baseModule, valuesDirs,packageNameFinder)

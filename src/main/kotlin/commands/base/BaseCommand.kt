@@ -7,12 +7,11 @@ import java.io.File
 abstract class BaseCommand(
     protected val resType: String,
     protected val projectDir: String,
-    private val packageNameFinder: PackageNameFinder,
-    protected val baseModule: String
+    protected val baseModule: String,
+    private val packageNameFinder: PackageNameFinder
 ) : Command {
     private val basePackageName by lazy(LazyThreadSafetyMode.NONE) {
         packageNameFinder.getPackageNameFromModule(
-            projectDir,
             baseModule
         )
     }
@@ -113,7 +112,7 @@ abstract class BaseCommand(
     ): MutableSet<String> {
         val modifiedFiles = mutableSetOf<String>()
 
-        val packageName = packageNameFinder.getPackageNameFromModule(projectDir, module)
+        val packageName = packageNameFinder.getPackageNameFromModule(module)
 
         if (basePackageName == packageName)
             return modifiedFiles

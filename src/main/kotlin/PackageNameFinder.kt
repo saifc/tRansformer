@@ -1,12 +1,12 @@
 import java.io.File
 
-object PackageNameFinder {
+class PackageNameFinder(private val projectDir: String) {
 
     private val packageRegex = "package *= *\"([a-zA-Z0-9_.]+)\"".toRegex()
 
     private val moduleToPackageNameMapping = mutableMapOf<String, String>()
 
-    fun getPackageNameFromModule(projectDir: String, module: String): String {
+    fun getPackageNameFromModule(module: String): String {
         var packageName = moduleToPackageNameMapping[module] ?: ""
         if (packageName.isEmpty()) {
             File("$projectDir/$module/src/main/AndroidManifest.xml").forEachLine {
@@ -22,5 +22,4 @@ object PackageNameFinder {
 
         return packageName
     }
-
 }

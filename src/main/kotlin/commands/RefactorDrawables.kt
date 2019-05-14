@@ -7,5 +7,6 @@ import commands.base.RefactorMoveCommand
 
 class RefactorDrawables(
     projectDir: String,
-    baseModule: String
-) : Command by RefactorMoveCommand(ResourceType.drawable, projectDir, PackageNameFinder, baseModule)
+    baseModule: String,
+    packageNameFinder : PackageNameFinder
+) : Command by RefactorMoveCommand(ResourceType.drawable, projectDir, baseModule,packageNameFinder)

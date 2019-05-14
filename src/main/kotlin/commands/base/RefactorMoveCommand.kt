@@ -9,9 +9,9 @@ import java.nio.file.StandardCopyOption
 open class RefactorMoveCommand(
     resType: String,
     projectDir: String,
-    packageNameFinder: PackageNameFinder,
-    baseModule: String
-) : BaseCommand(resType, projectDir, packageNameFinder, baseModule) {
+    baseModule: String,
+    packageNameFinder: PackageNameFinder
+) : BaseCommand(resType, projectDir, baseModule, packageNameFinder) {
 
     override operator fun invoke(
         resources: Map<String, MutableList<Usage>>
@@ -54,10 +54,5 @@ open class RefactorMoveCommand(
         }
 
         return affectedFiles
-
     }
-
-
-
-
 }
