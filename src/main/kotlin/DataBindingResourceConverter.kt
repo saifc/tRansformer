@@ -1,15 +1,15 @@
 import java.io.File
 
 class DataBindingResourceConverter(private val resourceFinder: ResourceFinder) {
+    private val resRegex = "(@)(dimen|drawable|color|string)(/)([a-zA-Z0-9_]+)[:\\s},)]".toRegex()
+
     fun convertToRIfNeeded(module: String, projectDir: String, basePackageName: String) {
 
         val map = resourceFinder.findModuleResources(projectDir, module)
 
-        val resRegex = "(@)(dimen|drawable|color|string)(/)([a-zA-Z0-9_]+)[:\\s},)]".toRegex()
-
         val projectFile = File("$projectDir/$module")
         projectFile.walk()
-            .filter { !it.isDirectory && it.name.endsWith(".xml") && !it.isHidden && it.parent.contains("layout") }
+            .filter { !it.isDirectory && it.extension.endsWith(".xml") && !it.isHidden && it.parent.contains("layout") }
             .forEach { file ->
 
                 val br = file.bufferedReader()
