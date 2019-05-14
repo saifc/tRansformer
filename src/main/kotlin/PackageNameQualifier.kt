@@ -9,7 +9,7 @@ class PackageNameQualifier(
     private val resRegex =
         "([a-zA-Z0-9_.]*)R\\.(dimen|drawable|color|string|style|raw|array|anim|layout|bool)\\.([a-zA-Z0-9_]+)".toRegex()
 
-    fun qualify(modules: Array<String>) {
+    fun qualify(modules: List<String>) {
         modules.forEach { module ->
             println("$module:")
             val moduleResources = resourceFinder.findModuleResources(projectDir, module)

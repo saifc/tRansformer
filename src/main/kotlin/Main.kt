@@ -15,36 +15,9 @@ fun main(args: Array<String>) {
 
     println("Step 1 done")
 
-    val modules = arrayOf(
-        "app",
-        "materialsearchview",
-        "auth",
-        "hiw",
-        "about",
-        "createpot",
-        "contribute",
-        "giftcard",
-        "notifications",
-        "contributors",
-        "thankcontributors",
-        "pots",
-        "potdetails",
-        "potoffer",
-        "potuse",
-        "account",
-        "wiretransfer",
-        "partners",
-        "prices",
-        "confirmation",
-        "marketingcampaign",
-        "materialstepperview",
-        "actionmenu"
-    )
-
-
+    val modules = ModulesLister.list(projectDir)
 
     PackageNameQualifier(projectDir, basePackageName, ResourceFinder).qualify(modules)
-
 
     println("Step 2 done")
 
@@ -108,8 +81,6 @@ private fun refactorStrings(
 ) {
     val command = RefactorStrings(projectDir, PackageNameFinder, baseModule, valuesDirs)
     command(strings)
-
-
 }
 
 private fun refactorRaws(
@@ -120,7 +91,6 @@ private fun refactorRaws(
 
     val command = RefactorRaws(projectDir, PackageNameFinder, baseModule)
     command(raws)
-
 }
 
 private fun refactorDrawables(
@@ -131,9 +101,7 @@ private fun refactorDrawables(
 
     val command = RefactorDrawables(projectDir, PackageNameFinder, baseModule)
     command(drawables)
-
 }
-
 
 private fun refactorDimens(
     dimens: Map<String, MutableList<Usage>>,
@@ -144,7 +112,6 @@ private fun refactorDimens(
 
     val command = RefactorDimensions(projectDir, PackageNameFinder, baseModule, valuesDirs)
     command(dimens)
-
 }
 
 
