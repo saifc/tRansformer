@@ -3,9 +3,16 @@ import commands.RefactorDimensions
 import commands.RefactorDrawables
 import commands.RefactorRaws
 import commands.RefactorStrings
+import flags.Flag
+import flags.ParsedFlags
 import java.io.File
+import java.nio.file.Path
 
-class Migrator(private val projectDir: String, private val baseModule: String) {
+class Migrator(flags: ParsedFlags) {
+
+    private val projectDir = PROJECT_LOCATION_FLAG.getRequiredValue(flags).toAbsolutePath().toString()
+    private val baseModule = BASE_MODULE_FLAG.getRequiredValue(flags)
+    private val resourceTypes = RESOURCE_TYPES_FLAG.getValue(flags)
 
     private val packageNameFinder = PackageNameFinder(projectDir)
 
@@ -22,18 +29,13 @@ class Migrator(private val projectDir: String, private val baseModule: String) {
 
     operator fun invoke() {
 
-        refactor(
-            namespaceDimens = true,
-            namespaceDrawable = true,
-            namespaceStrings = true,
-            namespaceRaws = true,
-            namespaceColors = true
-        )
+        refactor()
 
         println("Moving done")
 
-        val modules = ModulesLister.list(projectDir)
-
+        val modules: List<String> = ModulesLister.list(projectDir).apply {
+            remove(baseModule)
+        }
         PackageNameQualifier(projectDir, basePackageName, resourceFinder).qualify(modules)
 
         println("Package name qualification done")
@@ -47,13 +49,22 @@ class Migrator(private val projectDir: String, private val baseModule: String) {
         println("Data binding resource conversion done")
     }
 
-    private fun refactor(
-        namespaceDimens: Boolean,
-        namespaceDrawable: Boolean,
-        namespaceStrings: Boolean,
-        namespaceRaws: Boolean,
-        namespaceColors: Boolean
-    ) {
+    private fun refactor() {
+
+        var namespaceDimens = resourceTypes?.contains(ResourceType.dimen) ?: true
+        var namespaceDrawable = resourceTypes?.contains(ResourceType.drawable) ?: true
+        var namespaceStrings = resourceTypes?.contains(ResourceType.string) ?: true
+        var namespaceRaws = resourceTypes?.contains(ResourceType.raw) ?: true
+        var namespaceColors = resourceTypes?.contains(ResourceType.color) ?: true
+
+
+        if (!namespaceDimens && !namespaceDrawable && !namespaceStrings && !namespaceRaws && !namespaceColors) {
+            namespaceDimens = true
+            namespaceDrawable = true
+            namespaceStrings = true
+            namespaceRaws = true
+            namespaceColors = true
+        }
 
         val usages = UsageFinder.findUsages(projectDir, baseModule)
 
@@ -61,8 +72,6 @@ class Migrator(private val projectDir: String, private val baseModule: String) {
         if (namespaceDrawable) {
             refactorDrawables(usages.getMonoModuleDrawables())
         }
-
-
 
         if (namespaceDimens) {
             refactorDimens(usages.getMonoModuleDimensions())
@@ -81,7 +90,7 @@ class Migrator(private val projectDir: String, private val baseModule: String) {
         }
     }
 
-    fun refactorColors(
+    private fun refactorColors(
         colors: Map<String, MutableList<Usage>>
     ) {
         val command = RefactorColors(projectDir, baseModule, valuesDirs, packageNameFinder)
@@ -117,5 +126,12 @@ class Migrator(private val projectDir: String, private val baseModule: String) {
 
         val command = RefactorDimensions(projectDir, baseModule, valuesDirs, packageNameFinder)
         command(dimens)
+    }
+
+    companion object {
+
+        val PROJECT_LOCATION_FLAG: Flag<Path> = Flag.path("project")
+        val BASE_MODULE_FLAG: Flag<String> = Flag.string("base-module")
+        val RESOURCE_TYPES_FLAG: Flag<List<String>> = Flag.stringList("resource-types")
     }
 }

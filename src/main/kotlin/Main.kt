@@ -1,9 +1,18 @@
+import flags.FlagParser
+import flags.ParsedFlags
+
 fun main(args: Array<String>) {
 
-    val projectDir = if (args.isNotEmpty()) args[0] else "/Users/saif/potcommun_android"
-    val baseModule = if (args.size > 1) args[1] else "core"
 
-    Migrator(projectDir,baseModule).invoke()
+    val flags: ParsedFlags
+    try {
+        flags = FlagParser().parse(*args)
+    } catch (e: FlagParser.FlagParseException) {
+        System.err.println("Error while parsing the flags: " + e.message)
+        return
+    }
+
+    Migrator(flags).invoke()
 
 }
 

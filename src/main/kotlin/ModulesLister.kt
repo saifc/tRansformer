@@ -2,7 +2,7 @@ import java.io.File
 
 object ModulesLister {
 
-    fun list(projectDir: String): List<String> {
+    fun list(projectDir: String): MutableList<String> {
 
         val modules = mutableListOf<String>()
         //TODO support kts
