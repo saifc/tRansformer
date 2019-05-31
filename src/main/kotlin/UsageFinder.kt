@@ -29,39 +29,7 @@ object UsageFinder {
 
 
                         if ("android." != prefix) {
-                            when (resourceType) {
-
-                                ResourceType.dimen -> {
-                                    usages.putDimension(
-                                        resourceName,
-                                        file.toRelativeString(projectFile).substringBefore("/"),
-                                        file.path
-                                    )
-                                }
-                                ResourceType.drawable -> {
-                                    usages.putDrawable(
-                                        resourceName,
-                                        file.toRelativeString(projectFile).substringBefore("/"),
-                                        file.path
-                                    )
-                                }
-
-                                ResourceType.color -> {
-                                    usages.putColor(
-                                        resourceName,
-                                        file.toRelativeString(projectFile).substringBefore("/"),
-                                        file.path
-                                    )
-                                }
-                                ResourceType.string -> {
-                                    usages.putString(
-                                        resourceName,
-                                        file.toRelativeString(projectFile).substringBefore("/"),
-                                        file.path
-                                    )
-                                }
-
-                            }
+                            putResource(resourceType, usages, resourceName, file, projectFile)
                         }
 
                     }
@@ -81,52 +49,62 @@ object UsageFinder {
 
 
                     if ("android." != prefix.replace("\\s".toRegex(), "")) {
-                        when (resourceType) {
-
-                            ResourceType.dimen -> {
-                                usages.putDimension(
-                                    resourceName,
-                                    file.toRelativeString(projectFile).substringBefore("/"),
-                                    file.path
-                                )
-                            }
-                            ResourceType.drawable -> {
-                                usages.putDrawable(
-                                    resourceName,
-                                    file.toRelativeString(projectFile).substringBefore("/"),
-                                    file.path
-                                )
-                            }
-
-                            ResourceType.color -> {
-                                usages.putColor(
-                                    resourceName,
-                                    file.toRelativeString(projectFile).substringBefore("/"),
-                                    file.path
-                                )
-                            }
-                            ResourceType.string -> {
-                                usages.putString(
-                                    resourceName,
-                                    file.toRelativeString(projectFile).substringBefore("/"),
-                                    file.path
-                                )
-                            }
-
-                            ResourceType.raw -> {
-                                usages.putRaw(
-                                    resourceName,
-                                    file.toRelativeString(projectFile).substringBefore("/"),
-                                    file.path
-                                )
-                            }
-
-                        }
+                        putResource(resourceType, usages, resourceName, file, projectFile)
                     }
 
                 }
             }
 
         return usages
+    }
+
+    private fun putResource(
+        resourceType: String,
+        usages: Usages,
+        resourceName: String,
+        file: File,
+        projectFile: File
+    ) {
+        when (resourceType) {
+
+            ResourceType.dimen -> {
+                usages.putDimension(
+                    resourceName,
+                    file.toRelativeString(projectFile).substringBefore("/"),
+                    file.path
+                )
+            }
+            ResourceType.drawable -> {
+                usages.putDrawable(
+                    resourceName,
+                    file.toRelativeString(projectFile).substringBefore("/"),
+                    file.path
+                )
+            }
+
+            ResourceType.color -> {
+                usages.putColor(
+                    resourceName,
+                    file.toRelativeString(projectFile).substringBefore("/"),
+                    file.path
+                )
+            }
+            ResourceType.string -> {
+                usages.putString(
+                    resourceName,
+                    file.toRelativeString(projectFile).substringBefore("/"),
+                    file.path
+                )
+            }
+
+            ResourceType.raw -> {
+                usages.putRaw(
+                    resourceName,
+                    file.toRelativeString(projectFile).substringBefore("/"),
+                    file.path
+                )
+            }
+
+        }
     }
 }
