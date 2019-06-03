@@ -2,7 +2,14 @@ package commands.base
 
 import PackageNameFinder
 import Usage
+import org.w3c.dom.Element
+import org.w3c.dom.Node
 import java.io.File
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.transform.OutputKeys
+import javax.xml.transform.TransformerFactory
+import javax.xml.transform.dom.DOMSource
+import javax.xml.transform.stream.StreamResult
 
 open class RefactorRemoveAndAppend(
     resType: String,
@@ -10,7 +17,7 @@ open class RefactorRemoveAndAppend(
     baseModule: String,
     private val valuesDirs: Sequence<File>,
     packageNameFinder: PackageNameFinder
-) : BaseCommand(resType, projectDir, baseModule,packageNameFinder) {
+) : BaseCommand(resType, projectDir, baseModule, packageNameFinder) {
 
     private val regex = "< *$resType .* *name *= *\"([a-zA-Z0-9_]+)\"".toRegex()
 
@@ -23,7 +30,60 @@ open class RefactorRemoveAndAppend(
 
         appendToFiles(filesToAppendTo)
 
+        fixInconsistencies(filesToAppendTo.keys)
+
         findAndReplace(resources)
+    }
+
+    private fun fixInconsistencies(files: Set<String>) {
+
+        files.map { File(it) }.forEach { file ->
+            val keys = HashSet<String>()
+            var writeFile = false
+
+            val builderFactory = DocumentBuilderFactory.newInstance()
+            val docBuilder = builderFactory.newDocumentBuilder()
+            val doc = docBuilder.parse(file)
+            val entries = doc.getElementsByTagName("*")
+
+            for (index in entries.length downTo 0) {
+                val item = entries.item(index) as Element?
+                val name = item?.getAttribute("name")
+                if (!name.isNullOrEmpty()) {
+                    if (keys.contains(name)) {
+
+                        val prevElem = item.previousSibling
+                        if (prevElem != null &&
+                            prevElem.nodeType == Node.TEXT_NODE &&
+                            prevElem.nodeValue.trim().isEmpty()
+                        ) {
+                            item.parentNode.removeChild(prevElem)
+                        }
+                        item.parentNode.removeChild(item)
+
+                        println("item: $name")
+                        writeFile = true
+                    } else {
+                        keys.add(name)
+                    }
+                }
+            }
+            if (writeFile) {
+
+                val transformerFactory = TransformerFactory.newInstance()
+                val transformer = transformerFactory.newTransformer()
+                transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes")
+                transformer.setOutputProperty(OutputKeys.METHOD, "xml")
+                transformer.setOutputProperty(OutputKeys.INDENT, "yes")
+                transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8")
+                transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4")
+
+                val source = DOMSource(doc)
+                val result = StreamResult(file)
+
+                transformer.transform(source, result)
+            }
+        }
     }
 
     private fun findResourceTypeFiles(): Sequence<File> {
@@ -99,7 +159,7 @@ open class RefactorRemoveAndAppend(
 
             val fileContent =
                 if (fileExists) {
-                    val content = file.readText().substringBeforeLast("</resources >")
+                    val content = file.readText().substringBeforeLast("</resources>")
                     "$content$value</resources>"
                 } else {
                     "<resources xmlns:tools=\"http://schemas.android.com/tools\">\n$value</resources>"
