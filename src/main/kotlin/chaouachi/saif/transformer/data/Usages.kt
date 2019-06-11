@@ -1,4 +1,4 @@
-package chaouachi.saif.transformer
+package chaouachi.saif.transformer.data
 
 class Usages(private val baseModule: String) {
 

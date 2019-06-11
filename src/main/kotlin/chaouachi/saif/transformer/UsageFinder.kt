@@ -1,5 +1,6 @@
 package chaouachi.saif.transformer
 
+import chaouachi.saif.transformer.data.Usages
 import java.io.File
 
 object UsageFinder {

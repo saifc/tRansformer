@@ -11,7 +11,7 @@ class PackageNameFinder(private val projectDir: String) {
     fun getPackageNameFromModule(module: String): String {
         var packageName = moduleToPackageNameMapping[module] ?: ""
         if (packageName.isEmpty()) {
-            File("$projectDir/$module/src/chaouachi.saif.transformer.main/AndroidManifest.xml").forEachLine {
+            File("$projectDir/$module/src/main/AndroidManifest.xml").forEachLine {
                 val index = packageRegex.find(it)
 
                 if (index != null) {

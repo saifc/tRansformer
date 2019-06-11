@@ -1,6 +1,7 @@
 package chaouachi.saif.transformer.commands
 
 import chaouachi.saif.transformer.*
+import chaouachi.saif.transformer.data.Usage
 import chaouachi.saif.transformer.subcommands.*
 import chaouachi.saif.transformer.flags.Flag
 import chaouachi.saif.transformer.flags.ParsedFlags

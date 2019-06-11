@@ -1,4 +1,4 @@
-package chaouachi.saif.transformer
+package chaouachi.saif.transformer.data
 
 class Usage(val module: String) {
     val files = mutableSetOf<String>()
