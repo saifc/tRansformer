@@ -1,4 +1,4 @@
-package flags
+package chaouachi.saif.transformer.flags
 
 import java.util.HashSet
 
@@ -13,7 +13,7 @@ typealias  ImmutableListMultimap<T, V> = Map<T, List<V>>
  * <pre>
  * static Flag<String> MY_FLAG = Flag.string("myFlag")
  *
- * void execute(flags.ParsedFlags flags) {
+ * void execute(chaouachi.saif.transformer.ParsedFlags flags) {
  * Optional<String> flagValue = MY_FLAG.value(flags);
  * ...
  * }
@@ -54,7 +54,12 @@ class ParsedFlags internal constructor(
         return when (values.size) {
             0 -> null
             1 -> values[0]
-            else -> throw FlagParser.FlagParseException(String.format("Flag --%s has been set more than once.", name))
+            else -> throw FlagParser.FlagParseException(
+                String.format(
+                    "Flag --%s has been set more than once.",
+                    name
+                )
+            )
         }
     }
 

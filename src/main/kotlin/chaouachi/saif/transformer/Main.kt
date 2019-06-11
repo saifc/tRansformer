@@ -1,5 +1,7 @@
-import flags.FlagParser
-import flags.ParsedFlags
+package chaouachi.saif.transformer
+
+import chaouachi.saif.transformer.flags.FlagParser
+import chaouachi.saif.transformer.flags.ParsedFlags
 
 fun main(args: Array<String>) {
 

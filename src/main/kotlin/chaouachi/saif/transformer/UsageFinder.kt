@@ -1,3 +1,5 @@
+package chaouachi.saif.transformer
+
 import java.io.File
 
 object UsageFinder {
@@ -29,7 +31,13 @@ object UsageFinder {
 
 
                         if ("android." != prefix) {
-                            putResource(resourceType, usages, resourceName, file, projectFile)
+                            putResource(
+                                resourceType,
+                                usages,
+                                resourceName,
+                                file,
+                                projectFile
+                            )
                         }
 
                     }
@@ -49,7 +57,13 @@ object UsageFinder {
 
 
                     if ("android." != prefix.replace("\\s".toRegex(), "")) {
-                        putResource(resourceType, usages, resourceName, file, projectFile)
+                        putResource(
+                            resourceType,
+                            usages,
+                            resourceName,
+                            file,
+                            projectFile
+                        )
                     }
 
                 }

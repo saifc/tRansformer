@@ -1,6 +1,6 @@
-package commands.base
+package chaouachi.saif.transformer.commands.base
 
-import Usage
+import chaouachi.saif.transformer.Usage
 
 interface Command {
     operator fun invoke(

@@ -1,3 +1,5 @@
+package chaouachi.saif.transformer
+
 import java.io.File
 
 fun File.isXml() : Boolean = name.endsWith(".xml")

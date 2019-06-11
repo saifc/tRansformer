@@ -1,3 +1,5 @@
+package chaouachi.saif.transformer
+
 object ResourceType {
     const val drawable = "drawable"
     const val dimen = "dimen"

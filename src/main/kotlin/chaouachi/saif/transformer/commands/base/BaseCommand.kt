@@ -1,9 +1,9 @@
-package commands.base
+package chaouachi.saif.transformer.commands.base
 
-import PackageNameFinder
-import Usage
-import isCode
-import isXml
+import chaouachi.saif.transformer.PackageNameFinder
+import chaouachi.saif.transformer.Usage
+import chaouachi.saif.transformer.isCode
+import chaouachi.saif.transformer.isXml
 import java.io.File
 
 abstract class BaseCommand(

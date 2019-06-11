@@ -1,4 +1,4 @@
-package flags
+package chaouachi.saif.transformer.flags
 
 import java.nio.file.Path
 import java.nio.file.Paths

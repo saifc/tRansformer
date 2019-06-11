@@ -1,3 +1,5 @@
+package chaouachi.saif.transformer
+
 class Usage(val module: String) {
     val files = mutableSetOf<String>()
     override fun equals(other: Any?): Boolean {

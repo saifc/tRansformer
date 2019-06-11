@@ -1,4 +1,4 @@
-package flags
+package chaouachi.saif.transformer.flags
 
 enum class OsPlatform {
     WINDOWS,

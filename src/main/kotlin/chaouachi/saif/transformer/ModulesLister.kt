@@ -1,3 +1,5 @@
+package chaouachi.saif.transformer
+
 import java.io.File
 
 object ModulesLister {

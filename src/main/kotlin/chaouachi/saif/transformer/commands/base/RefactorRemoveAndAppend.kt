@@ -1,7 +1,7 @@
-package commands.base
+package chaouachi.saif.transformer.commands.base
 
-import PackageNameFinder
-import Usage
+import chaouachi.saif.transformer.PackageNameFinder
+import chaouachi.saif.transformer.Usage
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 import java.io.File

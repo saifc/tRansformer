@@ -1,7 +1,7 @@
-package commands.base
+package chaouachi.saif.transformer.commands.base
 
-import PackageNameFinder
-import Usage
+import chaouachi.saif.transformer.PackageNameFinder
+import chaouachi.saif.transformer.Usage
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption

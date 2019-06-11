@@ -1,3 +1,5 @@
+package chaouachi.saif.transformer
+
 import java.io.File
 
 class DataBindingResourceConverter(
@@ -9,7 +11,7 @@ class DataBindingResourceConverter(
 
     fun convertToRIfNeeded(module: String) {
 
-        val map = resourceFinder.findModuleResources(projectDir, module)
+        val map = ResourceFinder.findModuleResources(projectDir, module)
 
         val projectFile = File("$projectDir/$module")
         projectFile.walk()

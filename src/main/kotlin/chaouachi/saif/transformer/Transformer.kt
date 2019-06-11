@@ -1,10 +1,12 @@
-import commands.RefactorColors
-import commands.RefactorDimensions
-import commands.RefactorDrawables
-import commands.RefactorRaws
-import commands.RefactorStrings
-import flags.Flag
-import flags.ParsedFlags
+package chaouachi.saif.transformer
+
+import chaouachi.saif.transformer.commands.RefactorColors
+import chaouachi.saif.transformer.commands.RefactorDimensions
+import chaouachi.saif.transformer.commands.RefactorDrawables
+import chaouachi.saif.transformer.commands.RefactorRaws
+import chaouachi.saif.transformer.commands.RefactorStrings
+import chaouachi.saif.transformer.flags.Flag
+import chaouachi.saif.transformer.flags.ParsedFlags
 import java.io.File
 import java.nio.file.Path
 
@@ -40,7 +42,8 @@ class Transformer(flags: ParsedFlags) {
 
         println("Package name qualification done")
 
-        val converter = DataBindingResourceConverter(projectDir, basePackageName, resourceFinder)
+        val converter =
+            DataBindingResourceConverter(projectDir, basePackageName, resourceFinder)
         modules.forEach { module ->
             println("in module $module")
             converter.convertToRIfNeeded(module)
@@ -93,14 +96,16 @@ class Transformer(flags: ParsedFlags) {
     private fun refactorColors(
         colors: Map<String, MutableList<Usage>>
     ) {
-        val command = RefactorColors(projectDir, baseModule, valuesDirs, packageNameFinder)
+        val command =
+            RefactorColors(projectDir, baseModule, valuesDirs, packageNameFinder)
         command(colors)
     }
 
     private fun refactorStrings(
         strings: Map<String, MutableList<Usage>>
     ) {
-        val command = RefactorStrings(projectDir, baseModule, valuesDirs, packageNameFinder)
+        val command =
+            RefactorStrings(projectDir, baseModule, valuesDirs, packageNameFinder)
         command(strings)
     }
 
@@ -124,7 +129,12 @@ class Transformer(flags: ParsedFlags) {
         dimens: Map<String, MutableList<Usage>>
     ) {
 
-        val command = RefactorDimensions(projectDir, baseModule, valuesDirs, packageNameFinder)
+        val command = RefactorDimensions(
+            projectDir,
+            baseModule,
+            valuesDirs,
+            packageNameFinder
+        )
         command(dimens)
     }
 
