@@ -14,7 +14,7 @@ fun main(args: Array<String>) {
     if (flags.mainCommand == "help")
         println("transformer --project=/path/to/project --base-module=baseModule [ resource-types=${ResourceType.dimen},${ResourceType.drawable},${ResourceType.string},${ResourceType.raw},${ResourceType.color} ]")
     else
-        Migrator(flags).invoke()
+        Transformer(flags).invoke()
 }
 
 

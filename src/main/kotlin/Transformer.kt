@@ -8,7 +8,7 @@ import flags.ParsedFlags
 import java.io.File
 import java.nio.file.Path
 
-class Migrator(flags: ParsedFlags) {
+class Transformer(flags: ParsedFlags) {
 
     private val projectDir = PROJECT_LOCATION_FLAG.getRequiredValue(flags).toAbsolutePath().toString()
     private val baseModule = BASE_MODULE_FLAG.getRequiredValue(flags)
