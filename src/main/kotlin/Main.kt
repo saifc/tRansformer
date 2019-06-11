@@ -3,7 +3,6 @@ import flags.ParsedFlags
 
 fun main(args: Array<String>) {
 
-
     val flags: ParsedFlags
     try {
         flags = FlagParser().parse(*args)
@@ -12,8 +11,10 @@ fun main(args: Array<String>) {
         return
     }
 
-    Migrator(flags).invoke()
-
+    if (flags.mainCommand == "help")
+        println("transformer --project=/path/to/project --base-module=baseModule [ resource-types=${ResourceType.dimen},${ResourceType.drawable},${ResourceType.string},${ResourceType.raw},${ResourceType.color} ]")
+    else
+        Migrator(flags).invoke()
 }
 
 
