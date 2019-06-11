@@ -14,7 +14,7 @@ object UsageFinder {
 
         val projectFile = File(projectDir)
         projectFile.walk()
-            .filter { !it.isDirectory && it.name.endsWith(".xml") && !it.isHidden && it.parent.contains("layout") }
+            .filter { !it.isDirectory && it.isXml() && !it.isHidden && it.parent.contains("layout") }
             .forEach { file ->
 
                 val br = file.bufferedReader()
@@ -39,7 +39,7 @@ object UsageFinder {
             }
 
         projectFile.walk()
-            .filter { !it.isDirectory && (it.name.endsWith(".kt") || it.name.endsWith(".java")) && !it.path.contains("/test/") }
+            .filter { !it.isDirectory && it.isCode() && !it.path.contains("/test/") }
             .forEach { file ->
                 val text = file.readText()
 

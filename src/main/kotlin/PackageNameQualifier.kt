@@ -17,7 +17,7 @@ class PackageNameQualifier(
 
             File("$projectDir/$module").walk()
                 .filter {
-                    !it.isDirectory && (it.name.endsWith(".xml") || it.name.endsWith(".java") || it.name.endsWith(".kt")) && !it.path.contains(
+                    !it.isDirectory && (it.isXml() || it.isCode()) && !it.path.contains(
                         "/test/"
                     )
                 }

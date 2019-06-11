@@ -2,6 +2,8 @@ package commands.base
 
 import PackageNameFinder
 import Usage
+import isCode
+import isXml
 import java.io.File
 
 abstract class BaseCommand(
@@ -29,7 +31,7 @@ abstract class BaseCommand(
 
         val resourcesToExclude = resources.map { it.key }
 
-        files.filter { it.endsWith(".xml") }.map { File(it) }
+        files.filter { it.isXml() }.map { File(it) }
             .forEach { oldFile ->
                 var writeFile = false
                 val br = oldFile.bufferedReader()
@@ -79,7 +81,7 @@ abstract class BaseCommand(
             }
 
 
-        files.filter { (it.endsWith(".kt") || it.endsWith(".java")) && !it.contains("/test/") }.map { File(it) }
+        files.filter { it.isCode() && !it.contains("/test/") }.map { File(it) }
             .forEach { file ->
                 var writeFile = false
                 var text = file.readText()
@@ -122,7 +124,7 @@ abstract class BaseCommand(
         val xmlFullyQualifiedRegex =
             "($basePackageName\\.)(R.)(dimen|drawable|color|string|style|raw|array)[.]([a-zA-Z0-9_]+)".toRegex()
 
-        files.filter { it.endsWith(".xml") }.map { File(it) }.forEach { oldFile ->
+        files.filter { it.isXml() }.map { File(it) }.forEach { oldFile ->
             val it = oldFile.bufferedReader()
 
             val newFile = File(oldFile.absolutePath + "_tmp").apply {
@@ -194,7 +196,7 @@ abstract class BaseCommand(
         val codeRegex =
             "(([a-zA-Z0-9_]+[\\n\\r\\s]*\\.[\\n\\r\\s]*)+|[a-zA-Z0-9_]*)(R[\\n\\r\\s]*.[\\n\\r\\s]*)(dimen|drawable|color|string|style|raw|array)[\\n\\r\\s]*\\.[\\n\\r\\s]*([a-zA-Z0-9_]+)([\\n\\r\\s]|\\)|;|,)".toRegex()
 
-        files.filter { (it.endsWith(".kt") || it.endsWith(".java")) && !it.contains("/test/") }.map { File(it) }
+        files.filter { it.isCode() && !it.contains("/test/") }.map { File(it) }
             .forEach { file ->
                 var writeFile = false
                 var text = file.readText()

@@ -39,7 +39,7 @@ class FlagParser {
         return ParsedFlags(commands, parseFlags(argsToProcess))
     }
 
-    fun HashMap<String, List<String>>.put(key: String, element: String) {
+    private fun HashMap<String, List<String>>.put(key: String, element: String) {
         var list = this[key]
         if (list == null) {
             list = mutableListOf(element)
