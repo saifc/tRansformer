@@ -1,11 +1,11 @@
-package chaouachi.saif.transformer.commands
+package chaouachi.saif.transformer.subcommands
 
 import chaouachi.saif.transformer.PackageNameFinder
 import chaouachi.saif.transformer.ResourceType
 import chaouachi.saif.transformer.Usage
-import chaouachi.saif.transformer.commands.base.Command
-import chaouachi.saif.transformer.commands.base.RefactorMoveCommand
-import chaouachi.saif.transformer.commands.base.RefactorRemoveAndAppend
+import chaouachi.saif.transformer.subcommands.base.Command
+import chaouachi.saif.transformer.subcommands.base.RefactorMoveCommand
+import chaouachi.saif.transformer.subcommands.base.RefactorRemoveAndAppend
 import java.io.File
 
 class RefactorColors(

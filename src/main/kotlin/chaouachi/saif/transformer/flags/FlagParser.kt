@@ -15,7 +15,7 @@ import java.util.Arrays
  * [--flagn] where:
  *
  *
- *  * commands: cannot start with "-".
+ *  * subcommands: cannot start with "-".
  *  * flags: have to start with "--". They can have the format "--flag=value" or "--flag value",
  * but when "=" is omitted, values cannot start with "--". A value does not have to be set
  * and is empty string by default.

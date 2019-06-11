@@ -1,6 +1,7 @@
-package chaouachi.saif.transformer
+package chaouachi.saif.transformer.commands
 
-import chaouachi.saif.transformer.commands.*
+import chaouachi.saif.transformer.*
+import chaouachi.saif.transformer.subcommands.*
 import chaouachi.saif.transformer.flags.Flag
 import chaouachi.saif.transformer.flags.ParsedFlags
 import java.io.File
@@ -26,6 +27,8 @@ class Transformer(flags: ParsedFlags) {
     private val resourceFinder = ResourceFinder
 
     private val modulesLister = ModulesLister
+
+    private val usageFinder = UsageFinder
 
     private val packageNameQualifier = PackageNameQualifier(projectDir, basePackageName, resourceFinder)
 
@@ -69,7 +72,7 @@ class Transformer(flags: ParsedFlags) {
             namespaceColors = true
         }
 
-        val usages = UsageFinder.findUsages(projectDir, baseModule)
+        val usages = usageFinder.findUsages(projectDir, baseModule)
 
 
         if (namespaceDrawable) {

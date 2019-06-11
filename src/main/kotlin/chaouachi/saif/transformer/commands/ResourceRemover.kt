@@ -1,7 +1,9 @@
-package chaouachi.saif.transformer
+package chaouachi.saif.transformer.commands
 
+import chaouachi.saif.transformer.ModulesLister
 import chaouachi.saif.transformer.flags.Flag
 import chaouachi.saif.transformer.flags.ParsedFlags
+import chaouachi.saif.transformer.isXml
 import java.io.File
 import java.nio.file.Path
 

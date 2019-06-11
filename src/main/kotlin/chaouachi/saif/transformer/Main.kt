@@ -1,5 +1,7 @@
 package chaouachi.saif.transformer
 
+import chaouachi.saif.transformer.commands.ResourceRemover
+import chaouachi.saif.transformer.commands.Transformer
 import chaouachi.saif.transformer.flags.FlagParser
 import chaouachi.saif.transformer.flags.ParsedFlags
 

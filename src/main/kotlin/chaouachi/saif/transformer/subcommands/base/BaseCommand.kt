@@ -1,4 +1,4 @@
-package chaouachi.saif.transformer.commands.base
+package chaouachi.saif.transformer.subcommands.base
 
 import chaouachi.saif.transformer.PackageNameFinder
 import chaouachi.saif.transformer.Usage
