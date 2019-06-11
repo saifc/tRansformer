@@ -17,8 +17,8 @@ object ResourceFinder {
             }.forEach {
                 if (it.name.startsWith("values")) {
                     for (file in it.list()) {
-                        //TODO windowsify
-                        if (file.substringBefore(".") == "")
+
+                        if (File(file).isHidden)
                             continue
                         val dbFactory = DocumentBuilderFactory.newInstance()
                         val dBuilder = dbFactory.newDocumentBuilder()
