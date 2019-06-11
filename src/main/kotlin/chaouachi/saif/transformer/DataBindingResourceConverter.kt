@@ -11,7 +11,7 @@ class DataBindingResourceConverter(
 
     fun convertToRIfNeeded(module: String) {
 
-        val map = ResourceFinder.findModuleResources(projectDir, module)
+        val map = resourceFinder.findModuleResources(projectDir, module)
 
         val projectFile = File("$projectDir/$module")
         projectFile.walk()

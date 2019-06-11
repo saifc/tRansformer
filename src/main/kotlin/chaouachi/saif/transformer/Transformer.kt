@@ -1,10 +1,6 @@
 package chaouachi.saif.transformer
 
-import chaouachi.saif.transformer.commands.RefactorColors
-import chaouachi.saif.transformer.commands.RefactorDimensions
-import chaouachi.saif.transformer.commands.RefactorDrawables
-import chaouachi.saif.transformer.commands.RefactorRaws
-import chaouachi.saif.transformer.commands.RefactorStrings
+import chaouachi.saif.transformer.commands.*
 import chaouachi.saif.transformer.flags.Flag
 import chaouachi.saif.transformer.flags.ParsedFlags
 import java.io.File
@@ -29,16 +25,20 @@ class Transformer(flags: ParsedFlags) {
 
     private val resourceFinder = ResourceFinder
 
+    private val modulesLister = ModulesLister
+
+    private val packageNameQualifier = PackageNameQualifier(projectDir, basePackageName, resourceFinder)
+
     operator fun invoke() {
 
         refactor()
 
         println("Moving done")
 
-        val modules: List<String> = ModulesLister.list(projectDir).apply {
+        val modules: List<String> = modulesLister.list(projectDir).apply {
             remove(baseModule)
         }
-        PackageNameQualifier(projectDir, basePackageName, resourceFinder).qualify(modules)
+        packageNameQualifier.qualify(modules)
 
         println("Package name qualification done")
 
@@ -140,8 +140,8 @@ class Transformer(flags: ParsedFlags) {
 
     companion object {
 
-        val PROJECT_LOCATION_FLAG: Flag<Path> = Flag.path("project")
-        val BASE_MODULE_FLAG: Flag<String> = Flag.string("base-module")
-        val RESOURCE_TYPES_FLAG: Flag<List<String>> = Flag.stringList("resource-types")
+        private val PROJECT_LOCATION_FLAG: Flag<Path> = Flag.path("project")
+        private val BASE_MODULE_FLAG: Flag<String> = Flag.string("base-module")
+        private val RESOURCE_TYPES_FLAG: Flag<List<String>> = Flag.stringList("resource-types")
     }
 }

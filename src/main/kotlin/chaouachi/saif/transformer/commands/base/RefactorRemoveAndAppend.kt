@@ -2,6 +2,7 @@ package chaouachi.saif.transformer.commands.base
 
 import chaouachi.saif.transformer.PackageNameFinder
 import chaouachi.saif.transformer.Usage
+import chaouachi.saif.transformer.isXml
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 import java.io.File
@@ -90,7 +91,7 @@ open class RefactorRemoveAndAppend(
         return valuesDirs.flatMap {
             it.walk()
         }.filter {
-            !it.isDirectory && it.nameWithoutExtension.contains(resType + "s") && it.extension == "xml"
+            !it.isDirectory && it.nameWithoutExtension.contains(resType + "s") && it.isXml()
         }
     }
 

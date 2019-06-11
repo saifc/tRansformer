@@ -13,10 +13,12 @@ fun main(args: Array<String>) {
         return
     }
 
-    if (flags.mainCommand == "help")
-        println("transformer --project=/path/to/project --base-module=baseModule [ resource-types=${ResourceType.dimen},${ResourceType.drawable},${ResourceType.string},${ResourceType.raw},${ResourceType.color} ]")
-    else
-        Transformer(flags).invoke()
+    when (flags.mainCommand) {
+        "help" -> println("transformer --project=/path/to/project --base-module=baseModule [ resource-types=${ResourceType.dimen},${ResourceType.drawable},${ResourceType.string},${ResourceType.raw},${ResourceType.color} ]")
+        "remove" -> ResourceRemover(flags).invoke()
+        else -> Transformer(flags).invoke()
+    }
+
 }
 
 

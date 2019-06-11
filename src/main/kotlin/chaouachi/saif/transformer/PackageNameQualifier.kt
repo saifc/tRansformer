@@ -14,7 +14,7 @@ class PackageNameQualifier(
     fun qualify(modules: List<String>) {
         modules.forEach { module ->
             println("$module:")
-            val moduleResources = ResourceFinder.findModuleResources(projectDir, module)
+            val moduleResources = resourceFinder.findModuleResources(projectDir, module)
             //val packageName = getPackageNameFromModule(projectDir, module)
 
             File("$projectDir/$module").walk()
