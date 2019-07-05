@@ -9,7 +9,7 @@ object UsageFinder {
         "([a-zA-Z0-9_.]*)(R.|@)(dimen|drawable|color|string|style|raw|array)[./]([a-zA-Z0-9_]+)".toRegex()
 
     private val codeResRegex =
-        "([a-zA-Z0-9_]+[\\n\\r\\s]*\\.[a-zA-Z0-9_.\\n\\r\\s]*\\.[\\n\\r\\s]*|)(R[\\n\\r\\s]*.[\\n\\r\\s]*)(dimen|drawable|color|string|style|raw|array)[\\n\\r\\s]*\\.[\\n\\r\\s]*([a-zA-Z0-9_]+)".toRegex()
+        "(([a-zA-Z0-9_]+[\\n\\r\\s]*\\.[\\n\\r\\s]*)+|[a-zA-Z0-9_]*)(R[\\n\\r\\s]*.[\\n\\r\\s]*)(dimen|drawable|color|string|style|raw|array)[\\n\\r\\s]*\\.[\\n\\r\\s]*([a-zA-Z0-9_]+)([\\n\\r\\s]|\\)|;|,)".toRegex()
 
     fun findUsages(projectDir: String, baseModule: String): Usages {
 
@@ -54,7 +54,7 @@ object UsageFinder {
 
                 val matches = codeResRegex.findAll(text)
                 matches.forEach {
-                    val (prefix, _, resourceType, resourceName) = it.destructured
+                    val (prefix, _, _, resourceType, resourceName) = it.destructured
 
 
                     if ("android." != prefix.replace("\\s".toRegex(), "")) {
