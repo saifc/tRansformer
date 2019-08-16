@@ -21,22 +21,21 @@ class Checker(flags: ParsedFlags) {
         val modules = modulesLister.list(projectDir).apply {
             remove(appModule)
         }
-
+        var cmd = "$projectDir/gradlew -p $projectDir "
 
         modules.forEach { module ->
-            val cmd = "$projectDir/gradlew -p $projectDir :$module:verifyReleaseResources"
-            println(cmd)
+            cmd += ":$module:verifyReleaseResources "
 
-            val run = Runtime.getRuntime()
-            val pr = run.exec(cmd)
-            pr.waitFor()
-            val buf = BufferedReader(InputStreamReader(pr.inputStream))
-            var line = buf.readLine()
-            while (line != null) {
-                println(line)
-                line = buf.readLine()
-            }
-
+        }
+        println(cmd)
+        val run = Runtime.getRuntime()
+        val pr = run.exec(cmd)
+        pr.waitFor()
+        val buf = BufferedReader(InputStreamReader(pr.inputStream))
+        var line = buf.readLine()
+        while (line != null) {
+            println(line)
+            line = buf.readLine()
         }
 
 
