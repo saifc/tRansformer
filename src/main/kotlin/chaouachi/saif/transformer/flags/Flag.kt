@@ -1,5 +1,6 @@
 package chaouachi.saif.transformer.flags
 
+import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.ArrayList
@@ -55,11 +56,21 @@ abstract class Flag<T> internal constructor(val name: String) {
 
         override fun parse(value: String): Path {
             var value = value
+
             if (OsPlatform.currentPlatform != OsPlatform.WINDOWS) {
                 value = HOME_DIRECTORY_ALIAS
                     .matcher(value)
                     .replaceFirst(Matcher.quoteReplacement(System.getProperty("user.home")))
             }
+
+            value= PARENT_DIRECTORY_ALIAS
+                .matcher(value)
+                .replaceFirst(Matcher.quoteReplacement(File(System.getProperty("user.dir")).parent))
+
+            value = LOCAL_DIRECTORY_ALIAS
+                .matcher(value)
+                .replaceFirst(Matcher.quoteReplacement(System.getProperty("user.dir")))
+
             return Paths.get(value)
         }
     }
@@ -97,6 +108,8 @@ abstract class Flag<T> internal constructor(val name: String) {
     companion object {
 
         private val HOME_DIRECTORY_ALIAS = Pattern.compile("^~")
+        private val PARENT_DIRECTORY_ALIAS = Pattern.compile("^\\.\\.")
+        private val LOCAL_DIRECTORY_ALIAS = Pattern.compile("^\\.")
 
         /**
          * Path flag holding a single value.

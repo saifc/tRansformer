@@ -2,15 +2,17 @@ package chaouachi.saif.transformer.commands
 
 import chaouachi.saif.transformer.*
 import chaouachi.saif.transformer.data.Usage
-import chaouachi.saif.transformer.subcommands.*
 import chaouachi.saif.transformer.flags.Flag
 import chaouachi.saif.transformer.flags.ParsedFlags
+import chaouachi.saif.transformer.subcommands.*
 import java.io.File
 import java.nio.file.Path
+import java.nio.file.Paths
 
 class Transformer(flags: ParsedFlags) {
 
-    private val projectDir = PROJECT_LOCATION_FLAG.getRequiredValue(flags).toAbsolutePath().toString()
+    private val projectDir =
+        (PROJECT_LOCATION_FLAG.getValue(flags) ?: Paths.get(System.getProperty("user.dir"))).toAbsolutePath().toString()
     private val baseModule = BASE_MODULE_FLAG.getRequiredValue(flags)
     private val resourceTypes = RESOURCE_TYPES_FLAG.getValue(flags)
 

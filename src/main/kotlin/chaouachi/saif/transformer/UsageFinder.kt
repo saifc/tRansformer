@@ -17,7 +17,7 @@ object UsageFinder {
 
         val projectFile = File(projectDir)
         projectFile.walk()
-            .filter { !it.isDirectory && it.isXml() && !it.isHidden && it.parent.contains("layout") }
+            .filter { !it.isDirectory && it.isXml() && !it.isHidden && (it.parent.contains("layout") || it.parent.contains("menu") || it.parent.contains("xml") || it.name.contains("AndroidManifest.xml") ) }
             .forEach { file ->
 
                 val br = file.bufferedReader()

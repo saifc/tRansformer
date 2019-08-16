@@ -6,9 +6,11 @@ import chaouachi.saif.transformer.flags.ParsedFlags
 import chaouachi.saif.transformer.isXml
 import java.io.File
 import java.nio.file.Path
+import java.nio.file.Paths
 
 class ResourceRemover(flags: ParsedFlags) {
-    private val projectDir = PROJECT_LOCATION_FLAG.getRequiredValue(flags).toAbsolutePath().toString()
+    private val projectDir =
+        (PROJECT_LOCATION_FLAG.getValue(flags) ?: Paths.get(System.getProperty("user.dir"))).toAbsolutePath().toString()
     private val baseModule = BASE_MODULE_FLAG.getRequiredValue(flags)
     private val resourceTypes = RESOURCE_TYPES_FLAG.getRequiredValue(flags)
 
