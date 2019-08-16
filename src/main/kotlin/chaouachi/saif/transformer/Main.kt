@@ -1,5 +1,6 @@
 package chaouachi.saif.transformer
 
+import chaouachi.saif.transformer.commands.Checker
 import chaouachi.saif.transformer.commands.ResourceRemover
 import chaouachi.saif.transformer.commands.Transformer
 import chaouachi.saif.transformer.flags.FlagParser
@@ -16,9 +17,10 @@ fun main(args: Array<String>) {
     }
 
     when (flags.mainCommand) {
-        "help" -> println("transformer --project=/path/to/project --base-module=baseModule [ resource-types=${ResourceType.dimen},${ResourceType.drawable},${ResourceType.string},${ResourceType.raw},${ResourceType.color} ]")
         "remove" -> ResourceRemover(flags).invoke()
-        else -> Transformer(flags).invoke()
+        "transform" -> Transformer(flags).invoke()
+        "verify" -> Checker(flags).invoke()
+        else -> println("transformer --project=/path/to/project --base-module=baseModule [ --resource-types=${ResourceType.dimen},${ResourceType.drawable},${ResourceType.string},${ResourceType.raw},${ResourceType.color} ]")
     }
 
 }
