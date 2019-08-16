@@ -1,12 +1,13 @@
 package chaouachi.saif.transformer.commands
 
 import chaouachi.saif.transformer.ModulesLister
-import chaouachi.saif.transformer.SystemCommandExecutor
 import chaouachi.saif.transformer.flags.Flag
 import chaouachi.saif.transformer.flags.ParsedFlags
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.ArrayList
+
 
 class Checker(flags: ParsedFlags) {
 
@@ -23,26 +24,17 @@ class Checker(flags: ParsedFlags) {
 
 
         modules.forEach { module ->
-           val cmd = "$projectDir/gradlew -p $projectDir :$module:verifyReleaseResources"
+            val cmd = "$projectDir/gradlew -p $projectDir :$module:verifyReleaseResources"
             println(cmd)
 
-            val commands = ArrayList<String>()
-            commands.add("/bin/sh")
-            commands.add("-c")
-            commands.add(cmd)
-
-            val commandExecutor = SystemCommandExecutor(commands)
-            val result = commandExecutor.executeCommand()
-
-            if (result == 0) {
-                val stdout = commandExecutor.standardOutputFromCommand
-                println(stdout)
-            }else {
-                val stderr = commandExecutor.standardErrorFromCommand
-                if (!stderr.isBlank()) {
-                    println("STDERR")
-                    println(stderr)
-                }
+            val run = Runtime.getRuntime()
+            val pr = run.exec(cmd)
+            pr.waitFor()
+            val buf = BufferedReader(InputStreamReader(pr.inputStream))
+            var line = buf.readLine()
+            while (line != null) {
+                println(line)
+                line = buf.readLine()
             }
 
         }
