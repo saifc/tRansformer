@@ -5,7 +5,7 @@ plugins {
     kotlin("jvm") version "1.3.21"
 }
 
-group = "chaouachi.saif"
+group = "dev.saifc"
 version = "1.0"
 
 repositories {
@@ -25,7 +25,7 @@ val fatJar = task("fatJar", type = Jar::class) {
     manifest {
         attributes["Implementation-Title"] = "Gradle Jar File Example"
         attributes["Implementation-Version"] = version
-        attributes["Main-Class"] = "chaouachi.saif.transformer.MainKt"
+        attributes["Main-Class"] = "dev.saifc.transformer.MainKt"
     }
     from(configurations.runtimeClasspath.get().map({ if (it.isDirectory) it else zipTree(it) }))
     with(tasks.jar.get() as CopySpec)
