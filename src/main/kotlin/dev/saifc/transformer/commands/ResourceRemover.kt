@@ -56,5 +56,7 @@ class ResourceRemover(flags: ParsedFlags) {
         private val PROJECT_LOCATION_FLAG: Flag<Path> = Flag.path("project")
         private val BASE_MODULE_FLAG: Flag<String> = Flag.string("base-module")
         private val RESOURCE_TYPES_FLAG: Flag<List<String>> = Flag.stringList("resource-types")
+
+        const val NAME="remove"
     }
 }

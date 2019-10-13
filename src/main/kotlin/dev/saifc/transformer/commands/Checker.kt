@@ -52,5 +52,7 @@ class Checker(flags: ParsedFlags) {
 
         private val PROJECT_LOCATION_FLAG: Flag<Path> = Flag.path("project")
         private val APP_MODULE_FLAG: Flag<String> = Flag.string("app-module")
+
+        const val NAME="verify"
     }
 }

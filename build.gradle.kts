@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "dev.saifc"
-version = "1.0.0
+version = "1.0.0"
 
 repositories {
     mavenCentral()
