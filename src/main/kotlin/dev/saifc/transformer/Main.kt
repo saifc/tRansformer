@@ -21,6 +21,7 @@ fun main(args: Array<String>) {
         "transform" -> Transformer(flags).invoke()
         "verify" -> Checker(flags).invoke()
         else -> {
+            println("Version 1.0.0")
             println("transformer <command>")
             println("Commands:")
             println("transform --project=/path/to/project --base-module=baseModule [ --resource-types=${ResourceType.dimen},${ResourceType.drawable},${ResourceType.string},${ResourceType.raw},${ResourceType.color} ]")
