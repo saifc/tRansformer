@@ -48,7 +48,7 @@ object UsageFinder {
             }
 
         projectFile.walk()
-            .filter { !it.isDirectory && it.isCode() && !it.path.contains("/test/") }
+            .filter { !it.isDirectory && it.isCode() && !it.path.contains("${File.separator}test${File.separator}") }
             .forEach { file ->
                 val text = file.readText()
 
@@ -85,14 +85,14 @@ object UsageFinder {
             ResourceType.dimen -> {
                 usages.putDimension(
                     resourceName,
-                    file.toRelativeString(projectFile).substringBefore("/"),
+                    file.toRelativeString(projectFile).substringBefore(File.separator),
                     file.path
                 )
             }
             ResourceType.drawable -> {
                 usages.putDrawable(
                     resourceName,
-                    file.toRelativeString(projectFile).substringBefore("/"),
+                    file.toRelativeString(projectFile).substringBefore(File.separator),
                     file.path
                 )
             }
@@ -100,14 +100,14 @@ object UsageFinder {
             ResourceType.color -> {
                 usages.putColor(
                     resourceName,
-                    file.toRelativeString(projectFile).substringBefore("/"),
+                    file.toRelativeString(projectFile).substringBefore(File.separator),
                     file.path
                 )
             }
             ResourceType.string -> {
                 usages.putString(
                     resourceName,
-                    file.toRelativeString(projectFile).substringBefore("/"),
+                    file.toRelativeString(projectFile).substringBefore(File.separator),
                     file.path
                 )
             }
@@ -115,7 +115,7 @@ object UsageFinder {
             ResourceType.raw -> {
                 usages.putRaw(
                     resourceName,
-                    file.toRelativeString(projectFile).substringBefore("/"),
+                    file.toRelativeString(projectFile).substringBefore(File.separator),
                     file.path
                 )
             }

@@ -1,6 +1,8 @@
 package dev.saifc.transformer
 
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 
 class PackageNameQualifier(
     private val projectDir: String,
@@ -20,7 +22,7 @@ class PackageNameQualifier(
             File("$projectDir/$module").walk()
                 .filter {
                     !it.isDirectory && (it.isXml() || it.isCode()) && !it.path.contains(
-                        "/test/"
+                        "${File.separator}test${File.separator}"
                     )
                 }
                 .forEach { file ->
@@ -60,11 +62,13 @@ class PackageNameQualifier(
                                 bw.newLine()
                             }
                         }
-                        if (writeFile)
-                            newFile.renameTo(file)
-                        else
-                            newFile.delete()
+
                     }
+                    br.close()
+                    if (writeFile)
+                        Files.move(newFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING)
+                    else
+                        newFile.delete()
                 }
 
         }

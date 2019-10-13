@@ -1,6 +1,8 @@
 package dev.saifc.transformer
 
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 
 class DataBindingResourceConverter(
     private val projectDir: String,
@@ -88,8 +90,9 @@ class DataBindingResourceConverter(
                         }
                     }
                 }
+                br.close()
                 if (writeFile)
-                    newFile.renameTo(file)
+                    Files.move(newFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING)
                 else
                     newFile.delete()
             }

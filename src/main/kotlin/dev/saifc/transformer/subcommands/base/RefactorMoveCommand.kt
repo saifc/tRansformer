@@ -34,7 +34,7 @@ open class RefactorMoveCommand(
                 !it.isDirectory && resource.key == it.nameWithoutExtension
             }.forEach {
                 val module = resource.value[0].module
-                val newFile = File(it.path.replace("$projectDir/$baseModule", "$projectDir/$module"))
+                val newFile = File(it.path.replace("$projectDir${File.separator}$baseModule", "$projectDir${File.separator}$module"))
                     .also {
                         it.parentFile.mkdirs()
                     }

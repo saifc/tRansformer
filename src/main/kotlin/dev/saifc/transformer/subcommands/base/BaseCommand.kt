@@ -5,6 +5,8 @@ import dev.saifc.transformer.data.Usage
 import dev.saifc.transformer.isCode
 import dev.saifc.transformer.isXml
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 
 abstract class BaseCommand(
     protected val resType: String,
@@ -72,16 +74,17 @@ abstract class BaseCommand(
                     }
 
                 }
+                br.close()
 
                 if (writeFile)
-                    newFile.renameTo(oldFile)
+                    Files.move(newFile.toPath(), oldFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
                 else
                     newFile.delete()
 
             }
 
 
-        files.filter { it.isCode() && !it.contains("/test/") }.map { File(it) }
+        files.filter { it.isCode() && !it.contains("${File.separator}test${File.separator}") }.map { File(it) }
             .forEach { file ->
                 var writeFile = false
                 var text = file.readText()
@@ -178,10 +181,10 @@ abstract class BaseCommand(
                         bw.newLine()
                 }
             }
-
+            it.close()
 
             if (writeFile)
-                newFile.renameTo(oldFile)
+                Files.move(newFile.toPath(), oldFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
             else
                 newFile.delete()
         }
@@ -196,7 +199,7 @@ abstract class BaseCommand(
         val codeRegex =
             "(([a-zA-Z0-9_]+[\\n\\r\\s]*\\.[\\n\\r\\s]*)+|[a-zA-Z0-9_]*)(R[\\n\\r\\s]*.[\\n\\r\\s]*)(dimen|drawable|color|string|style|raw|array)[\\n\\r\\s]*\\.[\\n\\r\\s]*([a-zA-Z0-9_]+)([\\n\\r\\s]|\\)|;|,)".toRegex()
 
-        files.filter { it.isCode() && !it.contains("/test/") }.map { File(it) }
+        files.filter { it.isCode() && !it.contains("${File.separator}test${File.separator}") }.map { File(it) }
             .forEach { file ->
                 var writeFile = false
                 var text = file.readText()

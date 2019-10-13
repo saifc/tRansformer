@@ -2,8 +2,10 @@ package dev.saifc.transformer.commands
 
 import dev.saifc.transformer.ModulesLister
 import dev.saifc.transformer.flags.Flag
+import dev.saifc.transformer.flags.OsPlatform
 import dev.saifc.transformer.flags.ParsedFlags
 import java.io.BufferedReader
+import java.io.File
 import java.io.InputStreamReader
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -21,13 +23,18 @@ class Checker(flags: ParsedFlags) {
         val modules = modulesLister.list(projectDir).apply {
             remove(appModule)
         }
-        var cmd = "$projectDir/gradlew -p $projectDir "
+
+        var cmd = "$projectDir${File.separator}gradlew -p $projectDir "
 
         modules.forEach { module ->
             cmd += ":$module:verifyReleaseResources "
 
         }
+        if (OsPlatform.currentPlatform == OsPlatform.WINDOWS)
+            println("Operation unsupported on Windows. Execute the following in the command line:")
         println(cmd)
+        if (OsPlatform.currentPlatform == OsPlatform.WINDOWS)
+            return
         val run = Runtime.getRuntime()
         val pr = run.exec(cmd)
         pr.waitFor()

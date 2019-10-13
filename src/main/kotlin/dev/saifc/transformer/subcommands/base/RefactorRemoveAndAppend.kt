@@ -6,6 +6,8 @@ import dev.saifc.transformer.isXml
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.OutputKeys
 import javax.xml.transform.TransformerFactory
@@ -123,8 +125,8 @@ open class RefactorRemoveAndAppend(
                         if (resource != null) {
 
                             val module = resource[0].module
-                            if (!file.path.contains("$projectDir/$module")) {
-                                val path = file.path.replace("$projectDir/$baseModule", "$projectDir/$module")
+                            if (!file.path.contains("$projectDir${File.separator}$module")) {
+                                val path = file.path.replace("$projectDir${File.separator}$baseModule", "$projectDir${File.separator}$module")
                                 val fileContent = filesToAppendTo[path] ?: ""
                                 filesToAppendTo[path] = fileContent + line + "\n"
                                 writeFile = true
@@ -143,11 +145,12 @@ open class RefactorRemoveAndAppend(
                         bw.newLine()
                 }
 
-                if (writeFile)
-                    newFile.renameTo(file)
-                else
-                    newFile.delete()
             }
+            br.close()
+            if (writeFile)
+                println("Renaming $newFile to $file "+ Files.move(newFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING))
+            else
+                println("Deleting $newFile "+newFile.delete())
 
         }
         return filesToAppendTo

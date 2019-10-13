@@ -22,7 +22,7 @@ object ResourceFinder {
                             continue
                         val dbFactory = DocumentBuilderFactory.newInstance()
                         val dBuilder = dbFactory.newDocumentBuilder()
-                        val xmlInput = FileInputStream(it.absolutePath + "/" + file)
+                        val xmlInput = FileInputStream("${it.absolutePath}/$file")
                         val doc = dBuilder.parse(xmlInput)
                         doc.documentElement.normalize()
                         val nodes = doc.getElementsByTagName("resources").item(0).childNodes
