@@ -60,11 +60,11 @@ class Transformer(flags: ParsedFlags) {
 
     private fun refactor() {
 
-        var namespaceDimens = resourceTypes?.contains(ResourceType.dimen) ?: true
-        var namespaceDrawable = resourceTypes?.contains(ResourceType.drawable) ?: true
-        var namespaceStrings = resourceTypes?.contains(ResourceType.string) ?: true
-        var namespaceRaws = resourceTypes?.contains(ResourceType.raw) ?: true
-        var namespaceColors = resourceTypes?.contains(ResourceType.color) ?: true
+        var namespaceDimens = resourceTypes?.contains(ResourceType.dimen) ?: false
+        var namespaceDrawable = resourceTypes?.contains(ResourceType.drawable) ?: false
+        var namespaceStrings = resourceTypes?.contains(ResourceType.string) ?: false
+        var namespaceRaws = resourceTypes?.contains(ResourceType.raw) ?: false
+        var namespaceColors = resourceTypes?.contains(ResourceType.color) ?: false
 
 
         if (!namespaceDimens && !namespaceDrawable && !namespaceStrings && !namespaceRaws && !namespaceColors) {
