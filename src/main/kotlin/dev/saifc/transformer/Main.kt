@@ -20,7 +20,18 @@ fun main(args: Array<String>) {
         "remove" -> ResourceRemover(flags).invoke()
         "transform" -> Transformer(flags).invoke()
         "verify" -> Checker(flags).invoke()
-        else -> println("transformer --project=/path/to/project --base-module=baseModule [ --resource-types=${ResourceType.dimen},${ResourceType.drawable},${ResourceType.string},${ResourceType.raw},${ResourceType.color} ]")
+        else -> {
+            println("transformer <command>")
+            println("Commands:")
+            println("transform --project=/path/to/project --base-module=baseModule [ --resource-types=${ResourceType.dimen},${ResourceType.drawable},${ResourceType.string},${ResourceType.raw},${ResourceType.color} ]")
+            println("Moves resources to the appropriate modules while refactoring the affected code to reflect the changes.")
+            println()
+            println("remove --project=/path/to/project --base-module=baseModule [ --resource-types=${ResourceType.dimen},${ResourceType.drawable},${ResourceType.string},${ResourceType.raw},${ResourceType.color} ]")
+            println("Removes a specific resource type from all modules except for the base module.")
+            println()
+            println("verify --project=/path/to/project --app-module=appModule")
+            println("Verifies the integrity of each module by executing verifyReleaseResources.")
+        }
     }
 
 }
